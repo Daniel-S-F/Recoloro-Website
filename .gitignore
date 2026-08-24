@@ -1,0 +1,19 @@
+# System- und Editor-Dateien
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# Temporäre und lokale Dateien
+*.tmp
+*.bak
+*~
+.env
+.env.*
+!.env.example
+
+# Mögliche künftige Abhängigkeiten und Testausgaben
+node_modules/
+dist/
+coverage/

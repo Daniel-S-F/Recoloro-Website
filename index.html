@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECOLORO — Originalfarbe. Gepflegter Eindruck.</title>
+  <meta name="description" content="RECOLORO restauriert Farbe und Oberfläche von verblassten Bauteilen — dauerhaft, wirtschaftlich, ohne Ersatz.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ═══ INTRO OVERLAY ═══ -->
+  <div id="intro" aria-hidden="true" role="presentation">
+    <div class="intro-before" id="introBefore"></div>
+    <div class="intro-logo" id="introLogo">
+      <img src="assets/images/logo-primary.svg" alt="RECOLORO">
+    </div>
+  </div>
+
+  <!-- ═══ NAVIGATION ═══ -->
+  <nav id="nav" aria-label="Hauptnavigation">
+    <div class="nav-inner">
+
+      <a href="index.html" class="nav-logo-link" aria-label="RECOLORO — Startseite">
+        <img src="assets/images/recoloro-wordmark.svg"
+             class="nav-logo nav-logo--white" alt="RECOLORO" height="38">
+        <img src="assets/images/recoloro-wordmark.svg"
+             class="nav-logo nav-logo--blue" alt="" aria-hidden="true" height="38">
+      </a>
+
+      <button class="nav-hamburger" id="navHamburger"
+              aria-label="Menü öffnen" aria-expanded="false" aria-controls="navMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-menu" id="navMenu" role="list">
+        <li role="listitem"><a href="#vorher-nachher">Vorher · Nachher</a></li>
+        <li role="listitem"><a href="#anwendungen">Anwendungen</a></li>
+        <li role="listitem"><a href="#vorteile">Vorteile</a></li>
+        <li role="listitem"><a href="#ablauf">Ablauf</a></li>
+        <li role="listitem"><a href="#faq">FAQ</a></li>
+        <li role="listitem"><a href="partner-werden.html" class="nav-link--partner">Partner werden</a></li>
+      </ul>
+
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section id="hero" aria-label="Vorher/Nachher Vergleich">
+
+    <div class="slider-wrap" id="sliderWrap">
+
+      <!-- Vorher (Before) — full bleed, underneath -->
+      <div class="slider-side slider-side--before">
+        <div class="slide-img slide-img--before" id="imgBefore"></div>
+      </div>
+
+      <!-- Nachher (After) — clipped by slider position -->
+      <div class="slider-side slider-side--after" id="sliderAfter">
+        <div class="slide-img slide-img--after" id="imgAfter"></div>
+      </div>
+
+      <!-- Vorher / Nachher labels -->
+      <span class="slide-label slide-label--before" aria-hidden="true">Vorher</span>
+      <span class="slide-label slide-label--after" aria-hidden="true">Nachher</span>
+
+      <!-- Divider line + draggable handle -->
+      <div class="slider-divider" id="sliderDivider">
+        <button class="slider-handle" id="sliderHandle"
+                role="slider" tabindex="0"
+                aria-label="Vorher/Nachher-Regler"
+                aria-valuemin="0" aria-valuemax="100" aria-valuenow="90">
+          <svg class="handle-arrow" viewBox="0 0 10 18" fill="none" aria-hidden="true">
+            <polyline points="8,2 2,9 8,16"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="handle-arrow" viewBox="0 0 10 18" fill="none" aria-hidden="true">
+            <polyline points="2,2 8,9 2,16"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Claim + CTA: Der zweite Claimteil erscheint synchron zur Farbrückkehr. -->
+    <div class="hero-overlay" id="heroOverlay">
+      <p class="hero-claim" id="heroClaim">
+        <span class="hero-claim-brand" id="heroClaimBrand"><img src="assets/images/recoloro-wordmark.svg" class="hero-wordmark" alt="RECOLORO"></span>
+        <span class="hero-claim-message" id="heroClaimMessage">bringt die Farbe zurück.</span>
+      </p>
+      <a href="#" class="hero-cta" id="heroCta">Offerte anfragen</a>
+    </div>
+
+  </section>
+
+  <!-- ═══ GRUPPEN-NAVIGATION ═══ -->
+  <section id="vorher-nachher" class="group-section">
+    <nav class="group-nav" id="groupNav" aria-label="Bauteilgruppen">
+      <button class="group-btn" data-group="tueren-tore">Türen &amp; Tore</button>
+      <button class="group-btn" data-group="fenster-storen">Fenster &amp; Storen</button>
+      <button class="group-btn" data-group="fassaden-bruestungen">Fassaden &amp; Brüstungen</button>
+      <button class="group-btn" data-group="wintergaerten-glas">Wintergärten &amp; Glas</button>
+      <button class="group-btn" data-group="spezialobjekte">Spezialobjekte</button>
+    </nav>
+  </section>
+
+  <!-- ═══ ANWENDUNGSGRAFIK ═══ -->
+  <section id="anwendungen" class="applications-section" aria-labelledby="applicationsTitle">
+    <div class="applications-intro">
+      <p class="section-eyebrow">Anwendungen</p>
+      <h1 id="applicationsTitle">RECOLORO für vielfältige Bauteile</h1>
+      <p>Entdecken Sie typische Einsatzbereiche. Fahren Sie mit der Maus über einen Punkt oder tippen Sie ihn an.</p>
+    </div>
+
+    <div class="hotspot-layout">
+      <figure class="hotspot-figure" aria-describedby="hotspotHelp">
+        <div class="hotspot-stage" id="hotspotStage">
+          <img src="assets/images/anwendungsgrafik-efh-gh-1.png"
+               alt="Anwendungsgrafik eines Einfamilien- und Mehrfamilienhauses mit unterschiedlichen Bauteilen"
+               class="hotspot-image" width="1536" height="1024">
+          <div class="hotspot-layer" id="hotspotLayer" aria-label="Interaktive Bauteile"></div>
+        </div>
+        <figcaption id="hotspotHelp">Jeder Punkt öffnet den Namen des jeweiligen Anwendungsbereichs.</figcaption>
+      </figure>
+
+      <aside class="hotspot-info" id="hotspotInfo" aria-live="polite" aria-atomic="true">
+        <p class="hotspot-info__number" id="hotspotInfoNumber">Anwendung</p>
+        <h2 id="hotspotInfoTitle">Anwendungsbereich auswählen</h2>
+        <p id="hotspotInfoDescription">Wählen Sie einen Punkt auf der Grafik, um den zugehörigen Bereich anzuzeigen.</p>
+      </aside>
+    </div>
+  </section>
+
+  <script src="hotspot-data.js"></script>
+  <script src="image-frames.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
