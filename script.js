@@ -7,61 +7,69 @@
 
 /* ── Daten ──────────────────────────────────────── */
 
-const HERO_GROUPS = [
-  { id: 'tueren-tore',          label: 'Türen & Tore' },
-  { id: 'fenster-storen',       label: 'Fenster & Storen' },
-  { id: 'fassaden-bruestungen', label: 'Fassaden & Brüstungen' },
-  { id: 'wintergaerten-glas',   label: 'Wintergärten & Glas' },
-  { id: 'spezialobjekte',       label: 'Spezialobjekte' },
-];
+const HERO_FALLBACK_PAIR = {
+  id: 'reco-105-fallback',
+  group: 'tueren-tore',
+  displayTitle: 'Pulverbeschichtetes Industrietor',
+  alt: {
+    before: 'Industrietor vor der RECOLORO-Behandlung',
+    after: 'Industrietor nach der RECOLORO-Behandlung',
+  },
+  generated: {
+    desktop: {
+      before: 'assets/images/bildpaare/reco-105-hero-desktop-vor.webp',
+      after: 'assets/images/bildpaare/reco-105-hero-desktop-nach.webp',
+    },
+    mobile: {
+      before: 'assets/images/bildpaare/reco-105-hero-mobile-vor.webp',
+      after: 'assets/images/bildpaare/reco-105-hero-mobile-nach.webp',
+    },
+  },
+};
 
-const IMAGE_PAIRS = [
-  {
-    id: 'reco-105',
-    group: 'tueren-tore',
-    tags: ['Industrietor', 'Rolltor', 'Metall', 'Industrie'],
-    before: 'assets/images/bildpaare/Reco_105_vor.jpg',
-    after:  'assets/images/bildpaare/Reco_105_nach.jpg',
-    beforeAlt: 'Industrietor vor der RECOLORO-Behandlung',
-    afterAlt:  'Industrietor nach der RECOLORO-Behandlung',
-  },
-  {
-    id: 'reco-106',
-    group: 'tueren-tore',
-    tags: ['Industrietüre', 'Seitenausgang', 'Metall', 'Gewerbe'],
-    before: 'assets/images/bildpaare/Reco_106_vor.jpg',
-    after:  'assets/images/bildpaare/Reco_106_nach.jpg',
-    beforeAlt: 'Seitentüre vor der RECOLORO-Behandlung',
-    afterAlt:  'Seitentüre nach der RECOLORO-Behandlung',
-  },
-  {
-    id: 'reco-107',
-    group: 'wintergaerten-glas',
-    tags: ['Vordach', 'Glasfassade', 'Alu', 'Treppenhaus', 'Gewerbe'],
-    before: 'assets/images/bildpaare/Reco_107_vor.jpg',
-    after:  'assets/images/bildpaare/Reco_107_nach.jpg',
-    beforeAlt: 'Verglastes Treppenhaus vor der RECOLORO-Behandlung',
-    afterAlt:  'Verglastes Treppenhaus nach der RECOLORO-Behandlung',
-  },
-  {
-    id: 'reco-110',
-    group: 'tueren-tore',
-    tags: ['Eingangstüre', 'Metall', 'Wohnhaus'],
-    before: 'assets/images/bildpaare/Reco_110_vor.jpg',
-    after:  'assets/images/bildpaare/Reco_110_nach.jpg',
-    beforeAlt: 'Eingangstüre vor der RECOLORO-Behandlung',
-    afterAlt:  'Eingangstüre nach der RECOLORO-Behandlung',
-  },
-  {
-    id: 'reco-112',
-    group: 'fassaden-bruestungen',
-    tags: ['Fassade', 'Aussenverkleidung', 'Metall', 'Gewerbe'],
-    before: 'assets/images/bildpaare/Reco_112_vor.jpg',
-    after:  'assets/images/bildpaare/Reco_112_nach.jpg',
-    beforeAlt: 'Fassadenverkleidung vor der RECOLORO-Behandlung',
-    afterAlt:  'Fassadenverkleidung nach der RECOLORO-Behandlung',
-  },
-];
+function validateAndSelectHeroPairs(config) {
+  const errors = [];
+  const groups = new Set((config?.groups || []).map(group => group.id));
+  const pairs = Array.isArray(config?.pairs) ? config.pairs : [];
+  const ids = new Set();
+  const activeOrders = new Set();
+
+  pairs.forEach(pair => {
+    if (!pair?.id || ids.has(pair.id)) errors.push(`Doppelte oder fehlende Bildpaar-ID: ${pair?.id || '(leer)'}`);
+    ids.add(pair?.id);
+    if (!groups.has(pair?.group)) errors.push(`${pair?.id}: unzulässige Gruppe ${pair?.group || '(leer)'}`);
+
+    if (pair?.heroActive) {
+      if (!pair.publicApproved || !pair.heroEligible) errors.push(`${pair.id}: aktiv, aber nicht freigegeben oder nicht Hero-geeignet`);
+      if (!Number.isFinite(pair.heroOrder)) errors.push(`${pair.id}: aktive Hero-Reihenfolge fehlt`);
+      if (activeOrders.has(pair.heroOrder)) errors.push(`${pair.id}: doppelte Hero-Reihenfolge ${pair.heroOrder}`);
+      activeOrders.add(pair.heroOrder);
+      ['desktop', 'mobile'].forEach(device => {
+        if (!pair.generated?.[device]?.before || !pair.generated?.[device]?.after) {
+          errors.push(`${pair.id}: ${device}-Hero-Paar unvollständig`);
+        }
+      });
+    }
+  });
+
+  if (errors.length) console.error('RECOLORO Bildkonfiguration:', errors);
+
+  const active = pairs
+    .filter(pair => pair?.id !== 'reco-107')
+    .filter(pair => pair?.publicApproved && pair?.heroEligible && pair?.heroActive)
+    .filter(pair => Number.isFinite(pair?.heroOrder))
+    .filter(pair => pair?.generated?.desktop?.before && pair?.generated?.desktop?.after)
+    .filter(pair => pair?.generated?.mobile?.before && pair?.generated?.mobile?.after)
+    .sort((a, b) => a.heroOrder - b.heroOrder || a.id.localeCompare(b.id));
+
+  if (!active.length) {
+    console.error('RECOLORO Bildkonfiguration: Kein gültiges aktives Hero-Bildpaar. Sicheres Fallback wird verwendet.');
+    return [HERO_FALLBACK_PAIR];
+  }
+  return active;
+}
+
+const IMAGE_PAIRS = validateAndSelectHeroPairs(window.RECOLORO_IMAGE_CONFIG);
 
 /* ── DOM refs ───────────────────────────────────── */
 
@@ -80,10 +88,14 @@ const imgBefore     = document.getElementById('imgBefore');
 const imgAfter      = document.getElementById('imgAfter');
 const heroClaim     = document.getElementById('heroClaim');
 const heroCta       = document.getElementById('heroCta');
+const heroContext   = document.getElementById('heroContext');
 const hotspotLayer  = document.getElementById('hotspotLayer');
 const hotspotInfoNumber = document.getElementById('hotspotInfoNumber');
 const hotspotInfoTitle = document.getElementById('hotspotInfoTitle');
 const hotspotInfoDescription = document.getElementById('hotspotInfoDescription');
+const leadForm      = document.getElementById('leadForm');
+const formNote      = document.getElementById('formNote');
+const formStarted   = document.getElementById('formStarted');
 
 /* ── Zustand ────────────────────────────────────── */
 
@@ -92,7 +104,7 @@ let animGen      = 0;
 let currentPair  = 0;
 let userDragging = false;
 let autoTimer    = null;
-const imageMetaCache = new Map();
+let activeHeroDevice = null;
 
 // Gruppen-Filter
 let activeGroup  = null;
@@ -141,77 +153,54 @@ function animateSlider(from, to, durationMs, onDone) {
 function loadPair(index) {
   const pair = currentPairs[index];
 
-  if (pair.before) {
-    imgBefore.style.backgroundImage = `url(${pair.before})`;
-    imgBefore.setAttribute('aria-label', pair.beforeAlt);
+  if (!pair) return;
+
+  const device = window.matchMedia('(max-width: 700px)').matches ? 'mobile' : 'desktop';
+  const sources = pair.generated?.[device] || pair.generated?.desktop;
+
+  if (sources?.before) {
+    imgBefore.style.backgroundImage = `url("${sources.before}")`;
+    imgBefore.setAttribute('aria-label', pair.alt?.before || 'Vorher-Aufnahme');
   } else {
     imgBefore.style.backgroundImage = '';
   }
 
-  if (pair.after) {
-    imgAfter.style.backgroundImage = `url(${pair.after})`;
-    imgAfter.setAttribute('aria-label', pair.afterAlt);
+  if (sources?.after) {
+    imgAfter.style.backgroundImage = `url("${sources.after}")`;
+    imgAfter.setAttribute('aria-label', pair.alt?.after || 'Nachher-Aufnahme');
   } else {
     imgAfter.style.backgroundImage = '';
   }
 
-  preloadImageMeta(pair.before);
-  preloadImageMeta(pair.after);
-  applyCurrentPairFrame();
+  activeHeroDevice = device;
+  if (heroContext) heroContext.textContent = pair.displayTitle || '';
+  preloadNextPair(index, device);
 }
 
-/* ── Bildausschnitt je Paar / Gerät ─────────────── */
+/* ── Gerätespezifische Web-Bilder / gezieltes Vorladen ─ */
 
-function getCurrentFrame(pair) {
-  const allFrames = window.RECOLORO_IMAGE_FRAMES || {};
-  const device = window.matchMedia('(max-width: 700px)').matches ? 'mobile' : 'desktop';
-  return (allFrames[pair.id] && allFrames[pair.id][device]) || { x: 50, y: 50, zoom: 1 };
-}
-
-function preloadImageMeta(src) {
-  if (!src || imageMetaCache.has(src)) return;
-  const img = new Image();
-  img.onload = () => {
-    imageMetaCache.set(src, { width: img.naturalWidth, height: img.naturalHeight });
-    applyCurrentPairFrame();
-  };
-  img.src = src;
-}
-
-function applyImageFrame(element, src, frame) {
-  const meta = imageMetaCache.get(src);
-  const rect = sliderWrap.getBoundingClientRect();
-  if (!meta || !rect.width || !rect.height) return;
-
-  const zoom = Math.max(0.5, Math.min(2, Number(frame.zoom) || 1));
-  const scale = Math.max(rect.width / meta.width, rect.height / meta.height) * zoom;
-  const width = meta.width * scale;
-  const height = meta.height * scale;
-  const x = Math.max(0, Math.min(100, Number(frame.x) || 50));
-  const y = Math.max(0, Math.min(100, Number(frame.y) || 50));
-
-  element.style.backgroundSize = `${width}px ${height}px`;
-  element.style.backgroundPosition = `${-((width - rect.width) * x / 100)}px ${-((height - rect.height) * y / 100)}px`;
-}
-
-function applyCurrentPairFrame() {
-  const pair = currentPairs[currentPair];
-  if (!pair) return;
-  const frame = getCurrentFrame(pair);
-  applyImageFrame(imgBefore, pair.before, frame);
-  applyImageFrame(imgAfter, pair.after, frame);
+function preloadNextPair(index, device) {
+  if (currentPairs.length < 2) return;
+  const next = currentPairs[(index + 1) % currentPairs.length];
+  const sources = next.generated?.[device] || next.generated?.desktop;
+  [sources?.before, sources?.after].forEach(src => {
+    if (!src) return;
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = src;
+  });
 }
 
 /* ── Bildpaar-Wechsel ───────────────────────────── */
 
 function nextPair(onDone) {
+  if (!currentPairs.length) return;
   currentPair = (currentPair + 1) % currentPairs.length;
   runPairReveal(currentPair, onDone);
 }
 
 function runPairReveal(pairIndex, onDone) {
   hideHeroMessage();
-  heroCta.style.opacity = '0';
 
   // Das letzte Bild bleibt bis hier sichtbar bei 50/50. Erst die kurze
   // Überblendung verdeckt das Zurücksetzen des Reglers auf «Vorher».
@@ -232,7 +221,6 @@ function runPairReveal(pairIndex, onDone) {
         // beim Rückweg von 62 % Nachher auf die 50/50-Vergleichsposition.
         revealHeroMessage();
         animateSlider(38, 50, 900, () => {
-          heroCta.style.opacity = '1';
           if (onDone) onDone();
         });
       });
@@ -308,7 +296,7 @@ function onUserInteraction() {
 function startNavLogic() {
   // Das Menü erscheint bewusst nicht im Opening; nach der Hero-Sequenz
   // oder sofort, wenn der Benutzer aktiv wird.
-  setTimeout(showNav, 5500);
+  setTimeout(showNav, 1200);
   window.addEventListener('scroll',     onUserInteraction, { once: true, passive: true });
   sliderWrap.addEventListener('mousedown',  onUserInteraction, { once: true });
   sliderWrap.addEventListener('touchstart', onUserInteraction, { once: true, passive: true });
@@ -324,6 +312,7 @@ function startHeroAnimation() {
   setTimeout(() => {
     // Das neue Bild ist da: RECOLORO zieht mit ihm ein.
     showHeroBrand();
+    heroCta.style.opacity = '1';
     setTimeout(() => {
       // Erst dann beginnt die Farbrückkehr. Der zweite Claimteil wartet,
       // bis die Farbe sichtbar zurück ist.
@@ -331,7 +320,6 @@ function startHeroAnimation() {
       animateSlider(98, 38, 1800, () => {
         revealHeroMessage();
         animateSlider(38, 50, 900, () => {
-          heroCta.style.opacity = '1';
           scheduleAuto();
         });
       });
@@ -401,7 +389,12 @@ sliderHandle.addEventListener('touchstart', (e) => {
 sliderWrap.addEventListener('click', (e) => {
   if (!hero.classList.contains('is-ready')) return;
   if (e.target === sliderHandle || sliderHandle.contains(e.target)) return;
-  startDrag(e.clientX);
+  animGen++;
+  stopAuto();
+  sliderWrap.classList.remove('is-pair-transition', 'is-before-only');
+  const rect = sliderWrap.getBoundingClientRect();
+  setSlider(((e.clientX - rect.left) / rect.width) * 100);
+  autoTimer = setTimeout(scheduleAuto, 3000);
 });
 
 // Tastatur
@@ -414,10 +407,16 @@ sliderHandle.addEventListener('keydown', (e) => {
 /* ── Intro-Sequenz ──────────────────────────────── */
 
 function runIntro() {
-  // Phase 1 (0 – 1.5 s):   Logo auf warmem Weiss
-  // Phase 2 (1.5 – 2.6 s): Vorher-Platzhalter blendet hinter Logo ein
-  // Phase 3 (2.6 – 3.4 s): Logo blendet aus
-  // Phase 4 (3.4 – 4.2 s): Overlay blendet aus → Hero startet
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    intro.remove();
+    showNav();
+    showHeroBrand();
+    revealHeroMessage();
+    heroCta.style.opacity = '1';
+    hero.classList.add('is-ready');
+    setSlider(50);
+    return;
+  }
 
   setTimeout(() => {
     introBefore.style.opacity = '1';
@@ -431,9 +430,9 @@ function runIntro() {
           intro.style.display = 'none';
           startHeroAnimation();
         }, { once: true });
-      }, 800);
-    }, 1100);
-  }, 1500);
+      }, 420);
+    }, 520);
+  }, 700);
 }
 
 /* ── Navigation — Scroll-Verhalten ─────────────── */
@@ -449,7 +448,10 @@ window.addEventListener('scroll', () => {
 let resizeFrameTimer = null;
 window.addEventListener('resize', () => {
   clearTimeout(resizeFrameTimer);
-  resizeFrameTimer = setTimeout(applyCurrentPairFrame, 120);
+  resizeFrameTimer = setTimeout(() => {
+    const device = window.matchMedia('(max-width: 700px)').matches ? 'mobile' : 'desktop';
+    if (device !== activeHeroDevice) loadPair(currentPair);
+  }, 120);
 }, { passive: true });
 
 /* ── Hamburger-Menü ─────────────────────────────── */
@@ -476,11 +478,76 @@ function showHotspotInfo(hotspot) {
   hotspotInfoNumber.textContent = `Anwendung ${hotspot.id}`;
   hotspotInfoTitle.textContent = hotspot.title;
   hotspotInfoDescription.textContent = hotspot.description
-    || `Informationen zu ${hotspot.title} werden ergänzt.`;
+    || `${hotspot.title} können je nach Material, Beschichtung und Zustand für eine Farbauffrischung geeignet sein. Die Eignung wird vor der Ausführung geprüft.`;
 
   document.querySelectorAll('.hotspot-button').forEach(button => {
     button.classList.toggle('is-active', button.dataset.hotspotId === hotspot.id);
     button.setAttribute('aria-pressed', String(button.dataset.hotspotId === hotspot.id));
+  });
+}
+
+/* ── Offertanfrage ─────────────────────────────── */
+
+function setFormMessage(message, isError = false) {
+  if (!formNote) return;
+  formNote.textContent = message;
+  formNote.classList.toggle('is-error', isError);
+}
+
+function validateComponents() {
+  if (!leadForm) return true;
+  const checked = leadForm.querySelectorAll('input[name="components[]"]:checked');
+  const first = leadForm.querySelector('input[name="components[]"]');
+  if (checked.length) {
+    first.setCustomValidity('');
+    return true;
+  }
+  first.setCustomValidity('Bitte wählen Sie mindestens ein Bauteil aus.');
+  first.reportValidity();
+  return false;
+}
+
+if (leadForm) {
+  if (formStarted) formStarted.value = String(Math.floor(Date.now() / 1000));
+
+  leadForm.querySelectorAll('input[name="components[]"]').forEach(input => {
+    input.addEventListener('change', validateComponents);
+  });
+
+  leadForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    setFormMessage('');
+    if (!leadForm.reportValidity() || !validateComponents()) return;
+
+    const photos = leadForm.querySelector('input[type="file"]')?.files || [];
+    const totalSize = [...photos].reduce((sum, file) => sum + file.size, 0);
+    if (photos.length > 3 || totalSize > 10 * 1024 * 1024) {
+      setFormMessage('Bitte wählen Sie höchstens 3 Bilder mit insgesamt maximal 10 MB aus.', true);
+      return;
+    }
+
+    const submitButton = leadForm.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    leadForm.setAttribute('aria-busy', 'true');
+    setFormMessage('Ihre Anfrage wird gesendet …');
+
+    try {
+      const response = await fetch(leadForm.action, {
+        method: 'POST',
+        body: new FormData(leadForm),
+        headers: { Accept: 'application/json' },
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || 'Die Anfrage konnte nicht gesendet werden.');
+      leadForm.reset();
+      if (formStarted) formStarted.value = String(Math.floor(Date.now() / 1000));
+      setFormMessage('Vielen Dank. Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns nach der Prüfung.');
+    } catch (error) {
+      setFormMessage(error.message || 'Die Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es später erneut.', true);
+    } finally {
+      submitButton.disabled = false;
+      leadForm.removeAttribute('aria-busy');
+    }
   });
 }
 

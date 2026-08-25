@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de-CH">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RECOLORO — Originalfarbe. Gepflegter Eindruck.</title>
-  <meta name="description" content="RECOLORO restauriert Farbe und Oberfläche von verblassten Bauteilen — dauerhaft, wirtschaftlich, ohne Ersatz.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <title>Metalloberflächen sichtbar auffrischen | RECOLORO Schweiz</title>
+  <meta name="description" content="RECOLORO frischt verwitterte, technisch intakte beschichtete Metalloberflächen optisch auf. Eignung prüfen und Offerte anfragen.">
+  <meta property="og:title" content="RECOLORO bringt Farbe zurück.">
+  <meta property="og:description" content="Sichtbare Farbauffrischung für geeignete beschichtete Metalloberflächen – nach Eignungsprüfung.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://recoloro.ch/">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -41,10 +42,10 @@
       <ul class="nav-menu" id="navMenu" role="list">
         <li role="listitem"><a href="#vorher-nachher">Vorher · Nachher</a></li>
         <li role="listitem"><a href="#anwendungen">Anwendungen</a></li>
-        <li role="listitem"><a href="#vorteile">Vorteile</a></li>
-        <li role="listitem"><a href="#ablauf">Ablauf</a></li>
+        <li role="listitem"><a href="#vorteile">Warum RECOLORO?</a></li>
+        <li role="listitem"><a href="#ablauf">So funktioniert es</a></li>
         <li role="listitem"><a href="#faq">FAQ</a></li>
-        <li role="listitem"><a href="partner-werden.html" class="nav-link--partner">Partner werden</a></li>
+        <li role="listitem"><a href="#offerte" class="nav-link--cta">Offerte anfragen</a></li>
       </ul>
 
     </div>
@@ -96,7 +97,8 @@
         <span class="hero-claim-brand" id="heroClaimBrand"><img src="assets/images/recoloro-wordmark.svg" class="hero-wordmark" alt="RECOLORO"></span>
         <span class="hero-claim-message" id="heroClaimMessage">bringt die Farbe zurück.</span>
       </p>
-      <a href="#" class="hero-cta" id="heroCta">Offerte anfragen</a>
+      <p class="hero-context" id="heroContext" aria-live="polite"></p>
+      <a href="#offerte" class="hero-cta" id="heroCta">Offerte anfragen</a>
     </div>
 
   </section>
@@ -105,10 +107,7 @@
   <section id="vorher-nachher" class="group-section">
     <nav class="group-nav" id="groupNav" aria-label="Bauteilgruppen">
       <button class="group-btn" data-group="tueren-tore">Türen &amp; Tore</button>
-      <button class="group-btn" data-group="fenster-storen">Fenster &amp; Storen</button>
       <button class="group-btn" data-group="fassaden-bruestungen">Fassaden &amp; Brüstungen</button>
-      <button class="group-btn" data-group="wintergaerten-glas">Wintergärten &amp; Glas</button>
-      <button class="group-btn" data-group="spezialobjekte">Spezialobjekte</button>
     </nav>
   </section>
 
@@ -116,8 +115,8 @@
   <section id="anwendungen" class="applications-section" aria-labelledby="applicationsTitle">
     <div class="applications-intro">
       <p class="section-eyebrow">Anwendungen</p>
-      <h1 id="applicationsTitle">RECOLORO für vielfältige Bauteile</h1>
-      <p>Entdecken Sie typische Einsatzbereiche. Fahren Sie mit der Maus über einen Punkt oder tippen Sie ihn an.</p>
+      <h1 id="applicationsTitle">Wo RECOLORO Farbe auffrischt</h1>
+      <p>Im Mittelpunkt stehen verwitterte, technisch intakte pulverbeschichtete Metallbauteile. Andere organisch beschichtete Metalloberflächen beurteilen wir vor der Ausführung individuell.</p>
     </div>
 
     <div class="hotspot-layout">
@@ -128,19 +127,137 @@
                class="hotspot-image" width="1536" height="1024">
           <div class="hotspot-layer" id="hotspotLayer" aria-label="Interaktive Bauteile"></div>
         </div>
-        <figcaption id="hotspotHelp">Jeder Punkt öffnet den Namen des jeweiligen Anwendungsbereichs.</figcaption>
+        <figcaption id="hotspotHelp">Die Markierungen zeigen typische beschichtete Metallbauteile – nicht die Behandlung von Glasflächen.</figcaption>
       </figure>
 
       <aside class="hotspot-info" id="hotspotInfo" aria-live="polite" aria-atomic="true">
         <p class="hotspot-info__number" id="hotspotInfoNumber">Anwendung</p>
-        <h2 id="hotspotInfoTitle">Anwendungsbereich auswählen</h2>
-        <p id="hotspotInfoDescription">Wählen Sie einen Punkt auf der Grafik, um den zugehörigen Bereich anzuzeigen.</p>
+        <h2 id="hotspotInfoTitle">Metallbauteil auswählen</h2>
+        <p id="hotspotInfoDescription">Wählen Sie einen Punkt, um ein typisches Bauteil anzuzeigen. Zustand, Beschichtung und Eignung werden vor jeder Ausführung geprüft.</p>
       </aside>
     </div>
   </section>
 
+  <!-- ═══ VORTEILE ═══ -->
+  <section id="vorteile" class="content-section" aria-labelledby="benefitsTitle">
+    <div class="section-heading">
+      <p class="section-eyebrow">Warum RECOLORO?</p>
+      <h2 id="benefitsTitle">Auffrischen, wenn die vorhandene Beschichtung noch intakt ist.</h2>
+      <p>RECOLORO richtet sich an Bauteile, die technisch intakt sind, aber sichtbar an Farbtiefe verloren haben. Die bestehende Oberfläche bleibt der Ausgangspunkt.</p>
+    </div>
+    <div class="card-grid">
+      <article>
+        <span>01</span>
+        <h3>Farbwirkung zurückbringen</h3>
+        <p>Geeignete beschichtete Metalloberflächen werden sichtbar aufgefrischt, ohne einen neuen Farbton aufzutragen.</p>
+      </article>
+      <article>
+        <span>02</span>
+        <h3>Vorhandenes Bauteil nutzen</h3>
+        <p>Wo Bauteil und Beschichtung technisch intakt sind, kann die Auffrischung eine Alternative zu vorschnellem Ersatz oder Neulackierung sein.</p>
+      </article>
+      <article>
+        <span>03</span>
+        <h3>Am Objekt beurteilen</h3>
+        <p>Fotos ermöglichen eine erste Einschätzung. Die definitive Eignung hängt von Untergrund, Zustand, Exposition und Ausführung ab.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ ABLAUF ═══ -->
+  <section id="ablauf" class="content-section content-section--light" aria-labelledby="processTitle">
+    <div class="section-heading">
+      <p class="section-eyebrow">So funktioniert RECOLORO</p>
+      <h2 id="processTitle">Von der Anfrage zur sichtbaren Auffrischung.</h2>
+    </div>
+    <div class="process-grid">
+      <article><strong>01</strong><h3>Anfragen</h3><p>Sie senden uns Bauteil, Objekt-PLZ und wenn möglich Fotos.</p></article>
+      <article><strong>02</strong><h3>Prüfen</h3><p>Wir beurteilen Beschichtung, Zustand und Zugänglichkeit zunächst anhand Ihrer Angaben.</p></article>
+      <article><strong>03</strong><h3>Offerte erhalten</h3><p>Eine passende Fachfirma prüft das Objekt und erstellt die konkrete Offerte.</p></article>
+      <article><strong>04</strong><h3>Auffrischen</h3><p>Geeignete Oberflächen werden fachgerecht vorbereitet und behandelt.</p></article>
+    </div>
+  </section>
+
+  <!-- ═══ OFFERTE ═══ -->
+  <section id="offerte" class="offer-section" aria-labelledby="offerTitle">
+    <div class="offer-copy">
+      <p class="section-eyebrow">Offerte anfragen</p>
+      <h2 id="offerTitle">Schicken Sie uns die wichtigsten Angaben zum Objekt.</h2>
+      <p>Fotos helfen bei der ersten Einschätzung. Die definitive Eignung wird am Objekt beurteilt. Ihre Anfrage wird geprüft und bei Passung an eine ausführende Fachfirma weitergeleitet.</p>
+    </div>
+    <form class="lead-form" id="leadForm" action="submit.php" method="post" enctype="multipart/form-data">
+      <div class="field-grid">
+        <label>Name *
+          <input type="text" name="name" autocomplete="name" maxlength="120" required>
+        </label>
+        <label>E-Mail-Adresse *
+          <input type="email" name="email" autocomplete="email" maxlength="180" required>
+        </label>
+        <label>PLZ des Objekts *
+          <input type="text" name="plz" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{4}" maxlength="4" required>
+        </label>
+        <label>Telefonnummer
+          <input type="tel" name="phone" autocomplete="tel" maxlength="40" aria-describedby="phoneHint">
+          <small id="phoneHint">Nur ausfüllen, wenn Sie telefonisch kontaktiert werden möchten.</small>
+        </label>
+      </div>
+      <fieldset>
+        <legend>Bauteil / Bauteile *</legend>
+        <div class="component-options">
+          <label><input type="checkbox" name="components[]" value="Tueren und Tore"> Türen &amp; Tore</label>
+          <label><input type="checkbox" name="components[]" value="Fenster und Storen"> Fenster &amp; Storen</label>
+          <label><input type="checkbox" name="components[]" value="Fassaden und Bruestungen"> Fassaden &amp; Brüstungen</label>
+          <label><input type="checkbox" name="components[]" value="Wintergaerten und Metallprofile"> Wintergärten &amp; Metallprofile</label>
+          <label><input type="checkbox" name="components[]" value="Andere beschichtete Metallbauteile"> Andere beschichtete Metallbauteile</label>
+        </div>
+      </fieldset>
+      <label>Notizen
+        <textarea name="notes" rows="5" maxlength="2000" placeholder="Was ist sichtbar ausgebleicht? Wo befindet sich das Objekt?"></textarea>
+      </label>
+      <label>Fotos, wenn vorhanden
+        <input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple>
+        <small>Bis zu 3 Bilder als JPG, PNG oder WebP; insgesamt maximal 10 MB.</small>
+      </label>
+      <label class="privacy-check"><input type="checkbox" name="privacy_notice" value="acknowledged" required> Ich habe die <a href="datenschutz.html">Datenschutzinformationen</a> zur Kenntnis genommen. *</label>
+      <input class="honeypot" type="text" name="company_website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input type="hidden" name="form_started" id="formStarted" value="">
+      <button class="primary-button" type="submit">Offerte anfragen</button>
+      <p class="form-note" id="formNote" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <!-- ═══ FAQ ═══ -->
+  <section id="faq" class="content-section faq-section" aria-labelledby="faqTitle">
+    <div class="section-heading">
+      <p class="section-eyebrow">FAQ</p>
+      <h2 id="faqTitle">Häufige Fragen zur ersten Einschätzung.</h2>
+    </div>
+    <div class="faq-list">
+      <details><summary>Was ist RECOLORO?</summary><p>RECOLORO ist ein professionelles System zur optischen Auffrischung verwitterter, technisch intakter organisch beschichteter Oberflächen. Der Schwerpunkt liegt auf pulverbeschichteten Metallbauteilen.</p></details>
+      <details><summary>Für welche Oberflächen eignet sich RECOLORO?</summary><p>Im Mittelpunkt stehen technisch intakte, pulverbeschichtete Metallbauteile, zum Beispiel Türen, Tore, Fensterprofile, Fassadenelemente oder Brüstungen. Andere organisch beschichtete Metalloberflächen werden individuell geprüft.</p></details>
+      <details><summary>Wann ist RECOLORO nicht geeignet?</summary><p>RECOLORO ersetzt keine notwendige Reparatur. Ist das Bauteil oder seine Beschichtung technisch beschädigt, wird zuerst geklärt, welche Instandsetzung erforderlich ist.</p></details>
+      <details><summary>Wird der ursprüngliche Farbton vollständig wiederhergestellt?</summary><p>RECOLORO kann eine verwitterte Oberfläche sichtbar auffrischen. Das Ergebnis hängt von Art, Qualität und Alterung der vorhandenen Beschichtung ab; eine vollständige Wiederherstellung des ursprünglichen Farbtons wird nicht pauschal zugesichert.</p></details>
+      <details><summary>Wie lange hält die sichtbare Wirkung?</summary><p>Die Wirkungsdauer hängt wesentlich von Ausgangsbeschichtung, Exposition, mechanischer Belastung und fachgerechter Ausführung ab. Deshalb gibt es keine allgemeine, objektunabhängige Haltbarkeitszusage.</p></details>
+      <details><summary>Wer führt die Arbeiten aus?</summary><p>Die Anwendung erfolgt durch geschulte gewerbliche Anwender oder Fachbetriebe. RECOLORO RC ist nicht für die Abgabe an private Endverbraucher vorgesehen.</p></details>
+      <details><summary>Was kostet RECOLORO?</summary><p>Die Kosten hängen unter anderem von Bauteil, Fläche, Zustand, Zugänglichkeit und den Bedingungen am Objekt ab. Nach der Eignungsprüfung wird eine objektbezogene Offerte erstellt.</p></details>
+      <details><summary>Wie läuft eine Offertanfrage ab?</summary><p>Sie senden die wichtigsten Angaben und wenn möglich Fotos. Nach einer ersten Prüfung wird die Anfrage bei Passung an eine ausführende Fachfirma weitergeleitet, die das Objekt beurteilt und die Offerte erstellt.</p></details>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div>
+      <img src="assets/images/recoloro-wordmark.svg" alt="RECOLORO" class="footer-logo">
+      <p>RECOLORO bringt Farbe zurück.</p>
+    </div>
+    <nav aria-label="Footer-Navigation">
+      <a href="#offerte">Offerte anfragen</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+  </footer>
+
   <script src="hotspot-data.js"></script>
-  <script src="image-frames.js"></script>
+  <script src="image-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
