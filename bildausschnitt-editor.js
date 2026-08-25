@@ -1256,10 +1256,11 @@ async function detectLocalSaveApi(silent = false) {
     localSaveAvailable = false;
   }
   elements.chooseRoot.hidden = localSaveAvailable;
+  elements.downloadFallback.hidden = localSaveAvailable;
   if (!silent) {
     setRootStatus(
       localSaveAvailable
-        ? 'Direkte lokale Speicherung bereit'
+        ? 'Direkte lokale Speicherung bereit · Hauptknopf schreibt ohne Downloads in die Website'
         : 'Direkte Speicherung nicht erreichbar – Ordnerfreigabe oder Download-Fallback verwenden',
       localSaveAvailable ? 'ok' : 'error',
     );

@@ -199,6 +199,98 @@ window.RECOLORO_IMAGE_EDITOR_CONFIG = {
         "exportPreviewChecked": true,
         "technicalApproved": true
       }
+    },
+    "reco-112": {
+      "sourceOrientation": null,
+      "alignment": {
+        "reference": "after",
+        "simple": {
+          "before": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0
+          },
+          "after": {
+            "x": 0,
+            "y": 0,
+            "scale": 1,
+            "rotation": 0
+          }
+        },
+        "perspective": {
+          "enabled": false,
+          "pointOrder": [
+            "top-left",
+            "top-right",
+            "bottom-right",
+            "bottom-left"
+          ],
+          "before": [
+            {
+              "x": 0.1,
+              "y": 0.1
+            },
+            {
+              "x": 0.9,
+              "y": 0.1
+            },
+            {
+              "x": 0.9,
+              "y": 0.9
+            },
+            {
+              "x": 0.1,
+              "y": 0.9
+            }
+          ],
+          "after": [
+            {
+              "x": 0.1,
+              "y": 0.1
+            },
+            {
+              "x": 0.9,
+              "y": 0.1
+            },
+            {
+              "x": 0.9,
+              "y": 0.9
+            },
+            {
+              "x": 0.1,
+              "y": 0.9
+            }
+          ],
+          "gridSize": 16
+        }
+      },
+      "anonymization": {
+        "masks": [
+          {
+            "id": "mask-1787690079339",
+            "label": "Neue Maske",
+            "type": "blur",
+            "scope": "both",
+            "x": 0.4243035660009906,
+            "y": 0.05383874816308781,
+            "width": 0.08695970694682098,
+            "height": 0.0996161404131928,
+            "color": "#687275",
+            "pixelSize": 24,
+            "blurRadius": 28
+          }
+        ]
+      },
+      "workflow": {
+        "orientationChecked": true,
+        "alignmentChecked": false,
+        "anonymizationChecked": true,
+        "desktopCropChecked": true,
+        "mobileCropChecked": true,
+        "exportPreviewChecked": true,
+        "technicalApproved": true
+      }
     }
   }
 };

@@ -276,14 +276,15 @@ window.RECOLORO_IMAGE_CONFIG = {
       },
       "crop": {
         "desktop": {
-          "x": 50,
-          "y": 50,
-          "zoom": 1
+          "x": 34,
+          "y": 45,
+          "zoom": 1.6,
+          "curtain": 0
         },
         "mobile": {
-          "x": 50,
-          "y": 50,
-          "zoom": 1
+          "x": 19,
+          "y": 38,
+          "zoom": 1.2
         }
       },
       "metadata": {
