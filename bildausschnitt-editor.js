@@ -1,4 +1,4 @@
-/* RECOLORO – lokaler Hero-Bildworkflow. Keine Server-Schreibschnittstelle. */
+/* RECOLORO – lokaler Hero-Bildworkflow mit loopback-gebundener Speicherfunktion. */
 'use strict';
 
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -16,6 +16,7 @@ let savedEditorConfig = clone(sourceEditorConfig);
 let activePair = config.pairs[0];
 let activeSide = 'before';
 let websiteRoot = null;
+let localSaveAvailable = false;
 let working = false;
 const imageCache = new Map();
 const bitmapCache = new Map();
@@ -1245,6 +1246,59 @@ function download(name, contents) {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
+async function detectLocalSaveApi(silent = false) {
+  try {
+    if (!['127.0.0.1', 'localhost'].includes(window.location.hostname)) throw new Error('Kein lokaler Ursprung');
+    const response = await fetch('/__recoloro/health', { cache: 'no-store' });
+    const result = response.ok ? await response.json() : null;
+    localSaveAvailable = Boolean(result?.ok && result?.directSave);
+  } catch (error) {
+    localSaveAvailable = false;
+  }
+  elements.chooseRoot.hidden = localSaveAvailable;
+  if (!silent) {
+    setRootStatus(
+      localSaveAvailable
+        ? 'Direkte lokale Speicherung bereit'
+        : 'Direkte Speicherung nicht erreichbar – Ordnerfreigabe oder Download-Fallback verwenden',
+      localSaveAvailable ? 'ok' : 'error',
+    );
+  }
+  return localSaveAvailable;
+}
+
+async function blobBase64(blob) {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  }
+  return btoa(binary);
+}
+
+async function saveViaLocalApi(prepared) {
+  const imageFiles = await Promise.all(prepared.images.map(async file => ({
+    path: file.path,
+    encoding: 'base64',
+    content: await blobBase64(file.blob),
+  })));
+  const files = [
+    ...imageFiles,
+    { path: 'image-editor-config.js', encoding: 'utf8', content: prepared.editorConfiguration },
+    { path: 'image-config.js', encoding: 'utf8', content: prepared.configuration },
+  ];
+  const response = await fetch('/__recoloro/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files }),
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result?.ok) {
+    throw new Error(result?.error || `Lokaler Speicherdienst antwortet mit HTTP ${response.status}.`);
+  }
+  return result;
+}
+
 async function prepareFiles() {
   syncFieldsToPair();
   const errors = validateConfig();
@@ -1261,15 +1315,16 @@ async function saveAndApply() {
   setStatus('WebP-Dateien werden erzeugt und geprüft …');
   try {
     const prepared = await prepareFiles();
+    if (!localSaveAvailable) await detectLocalSaveApi(true);
+    if (localSaveAvailable) {
+      const result = await saveViaLocalApi(prepared);
+      savedConfig = clone(config);
+      savedEditorConfig = clone(editorConfig);
+      setStatus(`Direkt gespeichert: ${result.saved.length} Dateien wurden in die richtigen Website-Pfade übernommen. Website neu laden und Hero-Reihenfolge prüfen.`, 'ok');
+      return;
+    }
     if (!websiteRoot) {
-      if (!window.showDirectoryPicker) {
-        prepared.images.forEach(file => download(file.path.split('/').pop(), file.blob));
-        download('image-config.js', prepared.configuration);
-        download('image-editor-config.js', prepared.editorConfiguration);
-        setStatus('Direkter Ordnerzugriff wird nicht unterstützt. Dateien wurden als Downloads bereitgestellt.', 'ok');
-        return;
-      }
-      throw new Error('Bitte zuerst den lokalen Website-Ordner auswählen.');
+      throw new Error('Direkter lokaler Speicherdienst ist nicht erreichbar und es wurde kein Website-Ordner freigegeben. Downloads werden nicht automatisch erzeugt.');
     }
     if (await websiteRoot.requestPermission({ mode: 'readwrite' }) !== 'granted') throw new Error('Schreibzugriff auf den Website-Ordner wurde nicht erteilt.');
     await verifyWebsiteRoot(websiteRoot);
@@ -1279,7 +1334,7 @@ async function saveAndApply() {
     savedConfig = clone(config);
     savedEditorConfig = clone(editorConfig);
     const imageSummary = prepared.images.length ? `${prepared.images.length} WebP-Dateien und ` : '';
-    setStatus(`${imageSummary}image-config.js wurden übernommen. Website jetzt im zweiten Tab neu laden und prüfen.`, 'ok');
+    setStatus(`${imageSummary}image-config.js wurden übernommen. Website neu laden und prüfen.`, 'ok');
   } catch (error) {
     setStatus(error.message || 'Übernahme fehlgeschlagen.', 'error');
   } finally {
@@ -1680,8 +1735,7 @@ function initialise() {
   }, { passive: true });
   window.addEventListener('beforeunload', stopBlinking);
   renderFields();
-  restoreRootHandle();
-  if (!window.showDirectoryPicker) setRootStatus('Ordnerzugriff nicht unterstützt – Download-Fallback verfügbar');
+  restoreRootHandle().finally(() => detectLocalSaveApi());
 }
 
 initialise();

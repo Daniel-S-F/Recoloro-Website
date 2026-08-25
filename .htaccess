@@ -24,6 +24,6 @@ Options -Indexes
 
 # Editor, interne Bearbeitungsparameter und nicht anonymisierte Pilotquellen
 # dürfen bei einem produktiven Apache-Deployment nicht extern erreichbar sein.
-<FilesMatch "^(?:bildausschnitt-editor\.html|bildausschnitt-editor\.js|image-editor-config\.js|orig-001-(?:vor|nach)\.jpg)$">
+<FilesMatch "^(?:bildausschnitt-editor\.html|bildausschnitt-editor\.js|image-editor-config\.js|local-pilot-server\.py|orig-001-(?:vor|nach)\.jpg)$">
   Require local
 </FilesMatch>
