@@ -54,6 +54,7 @@ const elements = {
   desktopPreview: document.querySelector('#desktopPreview'),
   mobilePreview: document.querySelector('#mobilePreview'),
   desktopControls: document.querySelector('#desktopControls'),
+  desktopCurtainStatus: document.querySelector('#desktopCurtainStatus'),
   mobileControls: document.querySelector('#mobileControls'),
   stepNav: document.querySelector('#stepNav'),
   orientationCanvas: document.querySelector('#orientationCanvas'),
@@ -153,13 +154,31 @@ function currentFrame(device) {
   return activePair.crop[device];
 }
 
+function actionableError(message) {
+  const text = String(message || 'Unbekannter Fehler.').trim();
+  if (/Lösung:/i.test(text)) return text;
+  if (/ungültige Randflächen|ohne gültige Bildinformation/i.test(text)) {
+    return `Fehler im Bildausschnitt: ${text} Lösung: Seitenrahmen vergrössern oder Bildausschnitt, Skalierung beziehungsweise Perspektivpunkte anpassen und die 100%-Vorschau erneut prüfen.`;
+  }
+  if (/Ordner|Schreibzugriff|Website-Root/i.test(text)) {
+    return `Fehler beim Website-Ordner: ${text} Lösung: Den Ordner Website_Arbeitsstand_2026-07-01 erneut wählen und den Schreibzugriff bestätigen.`;
+  }
+  if (/fehlt|nicht gefunden|unvollständig/i.test(text)) {
+    return `Fehler bei einer Datei oder Angabe: ${text} Lösung: Den genannten Pfad beziehungsweise das markierte Feld prüfen und danach erneut ausführen.`;
+  }
+  if (/Hero-Reihenfolge|aktiv, aber|doppelte Hero/i.test(text)) {
+    return `Fehler bei der Hero-Freigabe: ${text} Lösung: Freigabestufen und eine eindeutige positive Hero-Reihenfolge prüfen.`;
+  }
+  return `Fehler: ${text} Lösung: Den im Hinweis genannten Arbeitsschritt prüfen, korrigieren und erneut ausführen.`;
+}
+
 function setStatus(message, type = '') {
-  elements.workflowOutput.textContent = message;
+  elements.workflowOutput.textContent = type === 'error' ? actionableError(message) : message;
   elements.workflowOutput.className = `output${type ? ` is-${type}` : ''}`;
 }
 
 function setRootStatus(message, type = '') {
-  elements.rootStatus.textContent = message;
+  elements.rootStatus.textContent = type === 'error' ? actionableError(message) : message;
   elements.rootStatus.className = `status${type ? ` is-${type}` : ''}`;
 }
 
@@ -289,7 +308,7 @@ function perspectiveStatus() {
   const perspective = currentEditorState().alignment.perspective;
   if (!perspective.enabled) return { valid: true, message: 'Perspektivische Ausrichtung ist deaktiviert.' };
   if (!validPerspectivePoints(perspective.before) || !validPerspectivePoints(perspective.after)) {
-    return { valid: false, message: 'Je Bild müssen vier gültige, umlaufend gesetzte Perspektivpunkte vorhanden sein.' };
+    return { valid: false, message: 'Je Bild müssen vier gültige, umlaufend gesetzte Perspektivpunkte vorhanden sein; die Punktlinien dürfen sich nicht kreuzen.' };
   }
   try {
     const reference = currentEditorState().alignment.reference;
@@ -411,13 +430,28 @@ function applyMasks(context, canvas, side, mapper) {
   });
 }
 
+function requiredSymmetricCurtain(canvas) {
+  const data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+  let requiredWidth = 0;
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] >= 32) continue;
+    const pixelIndex = (index - 3) / 4;
+    const x = pixelIndex % canvas.width;
+    requiredWidth = Math.max(requiredWidth, x < canvas.width / 2 ? x + 1 : canvas.width - x);
+  }
+  return Math.ceil(requiredWidth / canvas.width * 1000) / 10;
+}
+
 function applyDesktopCurtain(context, canvas, frame) {
-  const percentage = Math.max(0, Math.min(42, Number(frame?.curtain) || 0));
-  if (!percentage) return;
-  const width = Math.round(canvas.width * percentage / 100);
+  const configured = Math.max(0, Math.min(49, Number(frame?.curtain) || 0));
+  if (!configured) return { configured: 0, effective: 0, automatic: false };
+  const required = requiredSymmetricCurtain(canvas);
+  const effective = Math.min(49, Math.max(configured, required));
+  const width = Math.ceil(canvas.width * effective / 100);
   context.fillStyle = config.heroDefaults.backgroundColor || '#F3F4F5';
   context.fillRect(0, 0, width, canvas.height);
   context.fillRect(canvas.width - width, 0, width, canvas.height);
+  return { configured, effective, automatic: effective > configured + 0.01 };
 }
 
 async function renderProcessedSide(side, width, height, options = {}) {
@@ -466,9 +500,9 @@ async function renderProcessedSide(side, width, height, options = {}) {
     }
   }
   if (withMasks) applyMasks(context, canvas, side, mapper);
-  if (frame) applyDesktopCurtain(context, canvas, frame);
+  const curtain = frame ? applyDesktopCurtain(context, canvas, frame) : { configured: 0, effective: 0, automatic: false };
   const hasInvalidArea = canvasHasTransparentPixels(canvas);
-  return { canvas, hasInvalidArea, mapper };
+  return { canvas, hasInvalidArea, mapper, curtain };
 }
 
 async function getAlignedPreviewCanvas(side, withMasks = true) {
@@ -515,6 +549,7 @@ async function paintPreview(container, device) {
   const width = Math.max(1, Math.round(rect.width * ratio));
   const height = Math.max(1, Math.round(rect.height * ratio));
   const invalidSides = [];
+  const curtainResults = [];
   await Promise.all(['before', 'after'].map(async side => {
     const target = container.querySelector(`[data-preview-image="${side}"]`);
     try {
@@ -524,6 +559,7 @@ async function paintPreview(container, device) {
       target.height = height;
       target.getContext('2d').drawImage(rendered.canvas, 0, 0);
       if (rendered.hasInvalidArea) invalidSides.push(side);
+      curtainResults.push(rendered.curtain);
     } catch (error) {
       showPairWarnings([error.message]);
     }
@@ -531,6 +567,20 @@ async function paintPreview(container, device) {
   if (activePair.id === pairId && processingRevision === revision) {
     container.classList.toggle('has-invalid', invalidSides.length > 0);
     container.dataset.invalidSides = invalidSides.join(',');
+    if (device === 'desktop') {
+      const configured = Number(frame.curtain) || 0;
+      const effective = Math.max(configured, ...curtainResults.map(result => Number(result?.effective) || 0));
+      if (!configured) {
+        elements.desktopCurtainStatus.textContent = 'Seitenrahmen ist nicht aktiv. Seitliche Leerflächen müssen durch Ausschnitt oder Ausrichtung ausgeschlossen werden.';
+      } else if (invalidSides.length) {
+        elements.desktopCurtainStatus.textContent = `Fehler im Desktop-Rahmen: Auch bei ${effective.toFixed(1)}% je Seite bleibt eine Leerfläche sichtbar. Lösung: Bildgrösse erhöhen oder Perspektivpunkte korrigieren.`;
+      } else if (effective > configured + 0.01) {
+        elements.desktopCurtainStatus.textContent = `Seitenrahmen automatisch von ${configured.toFixed(0)}% auf ${effective.toFixed(1)}% je Seite erweitert, damit keine seitliche Leerfläche sichtbar bleibt.`;
+      } else {
+        elements.desktopCurtainStatus.textContent = `Seitenrahmen: ${configured.toFixed(0)}% je Seite; beide Ränder sind vollständig abgedeckt.`;
+      }
+      elements.desktopCurtainStatus.classList.toggle('is-error', invalidSides.length > 0);
+    }
   }
 }
 
@@ -546,7 +596,7 @@ function renderControls(device) {
     controlMarkup(device, 'y', 'Vertikal', 0, 100, 1),
     controlMarkup(device, 'zoom', 'Bildgrösse', 0.7, 1.6, 0.05),
   ];
-  if (device === 'desktop') controls.push(controlMarkup(device, 'curtain', 'Seitenrahmen', 0, 42, 1));
+  if (device === 'desktop') controls.push(controlMarkup(device, 'curtain', 'Seitenrahmen', 0, 49, 1));
   elements[`${device}Controls`].innerHTML = controls.join('');
 }
 
@@ -593,10 +643,11 @@ async function paintOrientationCanvas() {
     const orientationValid = !expected || (before.width === expected.orientedWidth && before.height === expected.orientedHeight && after.width === orientation.after.orientedWidth && after.height === orientation.after.orientedHeight);
     elements.orientationStatus.textContent = orientationValid
       ? `Orientierung korrekt dekodiert: Vorher ${before.width} × ${before.height}, Nachher ${after.width} × ${after.height}.`
-      : `Warnung: Browserdekodierung (${before.width} × ${before.height}) weicht von der erwarteten EXIF-Normalisierung ab.`;
+      : `Fehler in der Orientierung: Browserdekodierung (${before.width} × ${before.height}) weicht von der erwarteten EXIF-Normalisierung ab. Lösung: Bildquelle ausserhalb des Editors korrekt drehen und als neue Arbeitskopie einlesen.`;
     elements.orientationStatus.classList.toggle('is-error', !orientationValid);
   } catch (error) {
-    elements.orientationStatus.textContent = error.message;
+    elements.orientationStatus.textContent = actionableError(error.message);
+    elements.orientationStatus.classList.add('is-error');
   }
 }
 
@@ -652,7 +703,8 @@ async function paintPointCanvas() {
     elements.pointStatus.textContent = `${status.message} Aktiver Punkt: ${labels[selectedPointIndex]}.`;
     elements.pointStatus.classList.toggle('is-error', !status.valid);
   } catch (error) {
-    elements.pointStatus.textContent = error.message;
+    elements.pointStatus.textContent = actionableError(error.message);
+    elements.pointStatus.classList.add('is-error');
   }
 }
 
@@ -745,11 +797,13 @@ function renderMaskList() {
       const index = masks.findIndex(candidate => candidate.id === mask.id);
       masks.splice(index, 1);
       selectedMaskId = masks[0]?.id || null;
-      invalidateProcessing();
+      markMasksChanged();
       renderMaskList();
       syncMaskForm();
       renderMaskCanvas();
-      updateStepNav();
+      elements.maskStatus.textContent = masks.length
+        ? 'Maske absichtlich entfernt. Verbleibende Masken prüfen und die Anonymisierungsprüfung erneut bestätigen.'
+        : 'Alle Masken wurden absichtlich entfernt. Das ist zulässig; bitte den bewussten Verzicht im Ergebnis prüfen und danach bestätigen.';
     });
     item.append(text, remove);
     item.addEventListener('click', () => {
@@ -764,7 +818,15 @@ function renderMaskList() {
 
 function syncMaskForm() {
   const mask = getSelectedMask();
-  if (!mask) return;
+  if (!mask) {
+    elements.maskType.value = 'pixelate';
+    elements.maskScope.value = 'both';
+    elements.maskLabel.value = 'Neue Maske';
+    elements.maskColor.value = '#687275';
+    elements.maskPixelSize.value = 24;
+    elements.maskBlurRadius.value = 28;
+    return;
+  }
   elements.maskType.value = mask.type;
   elements.maskScope.value = mask.scope;
   elements.maskLabel.value = mask.label || 'Maske';
@@ -816,8 +878,10 @@ async function renderMaskCanvas() {
       }
     });
     context.setLineDash([]);
+    elements.maskStatus.classList.remove('is-error');
   } catch (error) {
-    elements.maskStatus.textContent = error.message;
+    elements.maskStatus.textContent = actionableError(error.message);
+    elements.maskStatus.classList.add('is-error');
   }
 }
 
@@ -1056,7 +1120,6 @@ function canvasBlob(canvas, quality) {
 
 function validatePilotWorkflow() {
   if (!isEnhancedPair()) return [];
-  const state = currentEditorState();
   const workflow = workflowState();
   const labels = {
     orientationChecked: 'Orientierung',
@@ -1068,10 +1131,9 @@ function validatePilotWorkflow() {
   };
   const errors = Object.entries(labels)
     .filter(([key]) => !workflow[key])
-    .map(([, label]) => `${label} ist noch nicht als geprüft markiert.`);
+    .map(([, label]) => `Fehler in der Prüfliste: ${label} ist noch nicht bestätigt. Lösung: Den zugehörigen Arbeitsschritt öffnen, Ergebnis prüfen und das Kontrollfeld markieren.`);
   const perspective = perspectiveStatus();
-  if (!perspective.valid) errors.push(perspective.message);
-  if (activePair.id === 'orig-001' && (state.anonymization?.masks || []).length < 2) errors.push('Orig 001 benötigt mindestens zwei Masken für Hausnummer und Briefkastenschild.');
+  if (!perspective.valid) errors.push(`Fehler in der Ausrichtung: ${perspective.message} Lösung: Die vier Punkte je Bild in der Reihenfolge oben links, oben rechts, unten rechts, unten links neu setzen.`);
   return errors;
 }
 
@@ -1088,7 +1150,7 @@ async function generateSelectedPair() {
     for (const side of ['before', 'after']) {
       const rendered = await renderProcessedSide(side, size.width, size.height, { frame: currentFrame(device), withMasks: true });
       if (isEnhancedPair() && rendered.hasInvalidArea) {
-        throw new Error(`${device === 'desktop' ? 'Desktop' : 'Mobil'} ${side === 'before' ? 'Vorher' : 'Nachher'} enthält Bereiche ohne gültige Bildinformation. Ausschnitt oder Ausrichtung anpassen.`);
+        throw new Error(`Fehler in ${device === 'desktop' ? 'Desktop' : 'Mobil'} / ${side === 'before' ? 'Vorher' : 'Nachher'}: Ein sichtbarer Bereich enthält keine gültige Bildinformation. Lösung: ${device === 'desktop' ? 'Seitenrahmen vergrössern oder ' : ''}Bildgrösse, Ausschnitt beziehungsweise Perspektivpunkte anpassen und erneut prüfen.`);
       }
       const blob = await canvasBlob(rendered.canvas, defaults.quality);
       results.push({ device, side, path: names[device][side], blob, width: size.width, height: size.height });
@@ -1280,9 +1342,12 @@ async function refreshActualExportPreview() {
     canvas.height = size.height;
     canvas.getContext('2d').drawImage(rendered.canvas, 0, 0);
     canvas.dataset.valid = String(!rendered.hasInvalidArea);
+    const location = `${device === 'desktop' ? 'Desktop' : 'Mobil'} / ${side === 'before' ? 'Vorher' : 'Nachher'}`;
     elements.exportPreviewStatus.textContent = rendered.hasInvalidArea
-      ? `${size.width} × ${size.height} Pixel: ungültige Randflächen erkannt. Export bleibt gesperrt.`
-      : `${size.width} × ${size.height} Pixel bei 100 Prozent gerendert – keine ungültigen Randflächen erkannt.`;
+      ? `Fehler in ${location}: Im sichtbaren Ergebnis bleibt eine Fläche ohne Bildinformation. Lösung: ${device === 'desktop' ? 'Seitenrahmen vergrössern oder ' : ''}Bildgrösse, Ausschnitt beziehungsweise Perspektivpunkte anpassen und die Vorschau erneut aktualisieren.`
+      : rendered.curtain?.automatic
+        ? `${location}, ${size.width} × ${size.height} Pixel: gültig. Der Seitenrahmen wurde automatisch von ${rendered.curtain.configured.toFixed(0)}% auf ${rendered.curtain.effective.toFixed(1)}% je Seite erweitert, um die Randlücke vollständig abzudecken.`
+        : `${location}, ${size.width} × ${size.height} Pixel bei 100 Prozent: gültig; keine sichtbaren Leerflächen erkannt.`;
     elements.exportPreviewStatus.classList.toggle('is-error', rendered.hasInvalidArea);
     elements.exportPreviewChecked.disabled = rendered.hasInvalidArea;
     if (rendered.hasInvalidArea) {
