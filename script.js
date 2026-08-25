@@ -55,7 +55,6 @@ function validateAndSelectHeroPairs(config) {
   if (errors.length) console.error('RECOLORO Bildkonfiguration:', errors);
 
   const active = pairs
-    .filter(pair => pair?.id !== 'reco-107')
     .filter(pair => pair?.publicApproved && pair?.heroEligible && pair?.heroActive)
     .filter(pair => Number.isFinite(pair?.heroOrder))
     .filter(pair => pair?.generated?.desktop?.before && pair?.generated?.desktop?.after)

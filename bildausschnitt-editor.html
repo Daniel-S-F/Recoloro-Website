@@ -13,7 +13,7 @@
     .toolbar,.actions,.mode { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }.toolbar { justify-content:space-between; margin-bottom:24px; }.toolbar-group { display:flex; align-items:end; flex-wrap:wrap; gap:14px; }
     label,.field { display:grid; gap:7px; color:var(--muted); font-size:.75rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
     input[type=text],input[type=number],select,textarea { width:100%; min-height:42px; padding:9px 11px; border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:0; }
-    select { min-width:270px; } textarea { min-height:76px; resize:vertical; }
+    select { min-width:0; } .toolbar select { min-width:270px; } textarea { min-height:76px; resize:vertical; }
     button,.link-button { min-height:42px; padding:9px 14px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
     button:hover,.link-button:hover,button.is-active { border-color:var(--blue); color:var(--blue); }.primary { background:var(--blue); border-color:var(--blue); color:#fff; }.primary:hover { background:var(--blue-dark); color:#fff; }.primary:disabled { opacity:.55; cursor:wait; }
     .status { align-self:flex-start; padding:8px 12px; background:#fff; border:1px solid var(--line); color:var(--muted); font-size:.82rem; }.status.is-ok { color:var(--ok); border-color:#add1b9; }.status.is-error { color:#9b2727; border-color:#e2b0b0; }
@@ -21,14 +21,23 @@
     .notice { margin-top:16px; padding:12px 14px; border-left:3px solid var(--warn); background:#fff7e8; color:#694200; font-size:.88rem; line-height:1.45; }.notice:empty { display:none; }.notice.is-error { border-color:#a12626; background:#fff0f0; color:#801d1d; }
     .preview-grid { display:grid; grid-template-columns:minmax(0,16fr) minmax(260px,7fr); gap:22px; align-items:start; }.preview-card { min-width:0; padding:16px; border:1px solid var(--line); background:var(--paper); }.preview-card h2 span { color:var(--muted); font-weight:400; }
     .hero-preview { position:relative; width:100%; overflow:hidden; background:#8b9298; cursor:grab; touch-action:none; user-select:none; }.hero-preview:active { cursor:grabbing; }.hero-preview.desktop { aspect-ratio:16/9; }.hero-preview.mobile { width:min(100%,390px); aspect-ratio:390/700; margin:auto; }
-    .hero-preview::after { content:""; position:absolute; inset:0; z-index:3; background:linear-gradient(to top,rgba(0,0,0,.65),rgba(0,0,0,.28) 40%,transparent 72%); pointer-events:none; }.preview-side,.preview-image { position:absolute; inset:0; }.preview-side.before { z-index:1; }.preview-side.after { z-index:2; clip-path:inset(0 0 0 50%); }.preview-image { background-repeat:no-repeat; background-color:var(--bg); }
+    .hero-preview::after { content:""; position:absolute; inset:0; z-index:3; background:linear-gradient(to top,rgba(0,0,0,.65),rgba(0,0,0,.28) 40%,transparent 72%); pointer-events:none; }.preview-side,.preview-image { position:absolute; inset:0; }.preview-side.before { z-index:1; }.preview-side.after { z-index:2; clip-path:inset(0 0 0 50%); }.preview-image { width:100%; height:100%; background-repeat:no-repeat; background-color:var(--bg); }.hero-preview.has-invalid { outline:3px solid #b83232; outline-offset:2px; }
     .divider { position:absolute; z-index:5; top:0; bottom:0; left:50%; width:2px; background:#fff; }.handle { position:absolute; top:50%; left:50%; width:42px; height:42px; transform:translate(-50%,-50%); border:0; border-radius:50%; background:#fff; color:var(--ink); font-size:1rem; box-shadow:0 3px 18px #0005; }.labels { position:absolute; z-index:6; right:18px; bottom:70px; left:18px; display:flex; justify-content:space-between; color:#fff; font-size:.62rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; }.hero-copy { position:absolute; z-index:6; right:16px; bottom:20px; left:16px; text-align:center; color:#fff; pointer-events:none; text-shadow:0 2px 14px #0008; }.hero-copy strong { display:inline-block; font-size:clamp(1rem,2.2vw,2.25rem); font-weight:300; }.hero-copy img { display:inline-block; width:clamp(95px,15vw,210px); margin-right:.2em; filter:brightness(0) invert(1); vertical-align:baseline; }.hero-copy small { display:block; margin:6px 0 10px; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; }.hero-copy b { display:inline-block; padding:7px 15px; border-radius:999px; background:var(--blue); font-size:.6rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; }
     .mobile .hero-copy { bottom:28px; }.mobile .hero-copy strong { font-size:1.65rem; line-height:1; }.mobile .hero-copy img { display:block; width:170px; margin:0 auto 6px; }.mobile .labels { bottom:122px; }
     .controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:14px; }.control { min-width:0; padding:10px; border:1px solid var(--line); background:#fff; }.control > span { display:flex; justify-content:space-between; gap:6px; margin-bottom:6px; color:var(--muted); font-size:.75rem; }.control-row { display:grid; grid-template-columns:32px minmax(0,1fr) 32px; gap:6px; align-items:center; }.control-row button { min-width:0; min-height:32px; padding:2px; font-size:1.05rem; }.control input { min-width:0; width:100%; accent-color:var(--blue); }.mobile-card .controls { grid-template-columns:1fr; }
     .workflow { margin-top:24px; }.workflow p { margin:0 0 12px; color:var(--muted); font-size:.9rem; }.output { min-height:1.5em; margin-top:12px; color:var(--muted); font-size:.88rem; line-height:1.45; }.output.is-ok { color:var(--ok); }.output.is-error { color:#9b2727; }
+    .step-nav { position:sticky; top:0; z-index:20; display:flex; overflow-x:auto; margin:0 0 24px; border:1px solid var(--line); background:#fff; }.step-nav button { flex:1 0 auto; min-height:50px; border:0; border-right:1px solid var(--line); font-size:.78rem; }.step-nav button:last-child { border-right:0; }.step-nav button.is-active { background:var(--blue); color:#fff; }.step-nav button.is-complete::before { content:'✓ '; color:var(--ok); }.step-nav button.is-active::before { color:#fff; }
+    .workflow-step { margin:0 0 24px; padding:20px; border:1px solid var(--line); background:var(--paper); scroll-margin-top:74px; }.workflow-step.is-active { border-top:4px solid var(--blue); }.step-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; }.step-heading h2 { margin:0 0 5px; }.step-heading p { margin:0; color:var(--muted); font-size:.9rem; }.step-number { flex:0 0 auto; display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%; background:var(--blue); color:#fff; font-weight:700; }
+    .workbench-grid { display:grid; grid-template-columns:minmax(320px,410px) minmax(0,1fr); gap:20px; align-items:start; }.tool-panel,.tool-group,.tool-grid label { min-width:0; }.tool-panel { display:grid; gap:14px; }.tool-group { padding:14px; border:1px solid var(--line); background:#fff; }.tool-group h3 { margin:0 0 12px; font-size:.92rem; }.tool-group p { margin:8px 0 0; color:var(--muted); font-size:.82rem; line-height:1.45; }.tool-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }.tool-grid input,.tool-grid select { min-width:0; max-width:100%; }.tool-grid .span-2 { grid-column:1/-1; }
+    .canvas-panel { min-width:0; }.canvas-shell { position:relative; display:grid; place-items:center; min-height:360px; overflow:hidden; border:1px solid var(--line); background-color:#c8ccd0; background-image:linear-gradient(45deg,#b7bcc0 25%,transparent 25%),linear-gradient(-45deg,#b7bcc0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#b7bcc0 75%),linear-gradient(-45deg,transparent 75%,#b7bcc0 75%); background-size:24px 24px; background-position:0 0,0 12px,12px -12px,-12px 0; }.editor-canvas { display:block; width:auto; max-width:100%; height:auto; max-height:72vh; background:transparent; touch-action:none; }.canvas-toolbar { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }.canvas-toolbar button { min-height:36px; padding:7px 10px; }.canvas-toolbar button.is-active,.actions button.is-active { background:var(--blue); color:#fff; }.canvas-status { min-height:1.5em; color:var(--muted); font-size:.86rem; line-height:1.45; }.canvas-status.is-error,.export-summary.is-error { color:#a21f1f; font-weight:600; }
+    .simple-controls { display:grid; gap:9px; }.simple-control { display:grid; grid-template-columns:80px 30px minmax(0,1fr) 30px 55px; gap:6px; align-items:center; color:var(--muted); font-size:.78rem; }.simple-control input { width:100%; accent-color:var(--blue); }.simple-control output { text-align:right; color:var(--ink); }.simple-control button { min-width:0; min-height:30px; padding:1px; font-size:1rem; }
+    .compare-controls { display:grid; gap:12px; }.compare-range { display:grid; grid-template-columns:130px minmax(0,1fr) 54px; gap:8px; align-items:center; color:var(--muted); font-size:.78rem; }.compare-range input { width:100%; accent-color:var(--blue); }
+    .mask-list { display:grid; gap:8px; margin-top:10px; }.mask-item { display:grid; grid-template-columns:1fr auto; gap:8px; padding:10px; border:1px solid var(--line); background:#fff; }.mask-item strong { font-size:.84rem; }.mask-item small { display:block; margin-top:3px; color:var(--muted); }.mask-item button { min-height:32px; padding:4px 9px; }.mask-item.is-active { border-color:var(--blue); box-shadow:0 0 0 2px #0f46d422; }
+    .checkline { display:flex; align-items:flex-start; gap:9px; padding:12px; border:1px solid var(--line); background:#fff; color:var(--ink); font-size:.88rem; font-weight:400; letter-spacing:0; text-transform:none; }.checkline input { flex:0 0 auto; width:18px; height:18px; accent-color:var(--blue); }.checkline.is-complete { border-color:#add1b9; background:#f1fbf4; }
+    .export-preview-scroll { max-height:620px; overflow:auto; border:1px solid var(--line); background:#7d8388; }.export-preview-scroll canvas { display:block; max-width:none; background:transparent; }.export-summary { margin-top:10px; color:var(--muted); font-size:.86rem; }.compact-select { min-width:170px; }
     code { font-family:Consolas,monospace; font-size:.88em; }.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
-    @media(max-width:1050px){ .editor-grid { grid-template-columns:1fr; }.preview-grid { grid-template-columns:1fr; }.preview-card.mobile-card { max-width:480px; } }
-    @media(max-width:640px){ header { display:block; }.status { display:inline-block; margin-top:18px; }.form-grid,.controls { grid-template-columns:1fr; }.span-2 { grid-column:auto; }.toolbar { align-items:stretch; }.toolbar-group { display:grid; width:100%; } select { min-width:0; }.hero-copy img { width:120px; } }
+    @media(max-width:1050px){ .editor-grid,.workbench-grid { grid-template-columns:1fr; }.preview-grid { grid-template-columns:1fr; }.preview-card.mobile-card { max-width:480px; } }
+    @media(max-width:640px){ header { display:block; }.status { display:inline-block; margin-top:18px; }.form-grid,.controls,.tool-grid { grid-template-columns:1fr; }.span-2,.tool-grid .span-2 { grid-column:auto; }.toolbar { align-items:stretch; }.toolbar-group { display:grid; width:100%; } select { min-width:0; }.hero-copy img { width:120px; }.step-nav button { font-size:.7rem; padding:8px; }.step-heading { align-items:center; }.simple-control { grid-template-columns:70px 28px minmax(0,1fr) 28px 46px; }.compare-range { grid-template-columns:72px minmax(0,1fr) 48px; } }
   </style>
 </head>
 <body>
@@ -45,7 +54,86 @@
       <div class="actions"><button type="button" id="chooseRoot">Website-Ordner wählen</button><a class="link-button" href="index.html" target="_blank" rel="noopener">Website öffnen</a></div>
     </div>
 
-    <div class="editor-grid">
+    <nav class="step-nav" id="stepNav" aria-label="Arbeitsschritte">
+      <button type="button" data-step-target="stepOrientation">1 Orientierung</button>
+      <button type="button" data-step-target="stepAlignment">2 Ausrichtung</button>
+      <button type="button" data-step-target="stepComparison">3 Vergleich</button>
+      <button type="button" data-step-target="stepAnonymization">4 Anonymisierung</button>
+      <button type="button" data-step-target="stepCrop">5 Ausschnitt</button>
+      <button type="button" data-step-target="stepExport">6 Exportprüfung</button>
+    </nav>
+
+    <section class="workflow-step" id="stepOrientation" data-workflow-step="orientation">
+      <div class="step-heading"><div><h2>Orientierung und Referenz</h2><p>EXIF-Orientierung kontrollieren und festlegen, welches Bild die gemeinsame Zielgeometrie vorgibt.</p></div><span class="step-number">1</span></div>
+      <div class="workbench-grid">
+        <div class="tool-panel">
+          <div class="tool-group">
+            <h3>Orientierungsdaten</h3>
+            <p id="orientationInfo">Für bestehende Paare sind keine zusätzlichen EXIF-Angaben hinterlegt.</p>
+          </div>
+          <label>Referenzbild <select id="referenceSide" class="compact-select"><option value="after">Nachher</option><option value="before">Vorher</option></select></label>
+          <label class="checkline"><input type="checkbox" id="orientationChecked"> Orientierung visuell geprüft</label>
+        </div>
+        <div class="canvas-panel"><div class="canvas-shell"><canvas class="editor-canvas" id="orientationCanvas" width="694" height="925" aria-label="Orientierungsprüfung"></canvas></div><p class="canvas-status" id="orientationStatus"></p></div>
+      </div>
+    </section>
+
+    <section class="workflow-step" id="stepAlignment" data-workflow-step="alignment">
+      <div class="step-heading"><div><h2>Einfache und perspektivische Ausrichtung</h2><p>Zuerst die anzupassende Aufnahme grob verschieben, skalieren oder drehen; danach vier korrespondierende Punkte markieren.</p></div><span class="step-number">2</span></div>
+      <div class="workbench-grid">
+        <div class="tool-panel">
+          <div class="tool-group"><h3>Einfache Ausrichtung · <span id="simpleTargetLabel">Vorher</span></h3><div class="simple-controls" id="simpleControls"></div><div class="actions"><button type="button" id="resetSimple">Einfache Ausrichtung zurücksetzen</button></div></div>
+          <div class="tool-group">
+            <h3>Vierpunkt-Perspektive</h3>
+            <label class="check"><input type="checkbox" id="perspectiveEnabled"> Perspektivische Ausrichtung verwenden</label>
+            <label>Bild für Punktsetzung <select id="pointSide"><option value="before">Vorher</option><option value="after">Nachher</option></select></label>
+            <div class="canvas-toolbar" id="pointButtons"><button type="button" data-point-index="0" class="is-active">↖ oben links</button><button type="button" data-point-index="1">↗ oben rechts</button><button type="button" data-point-index="2">↘ unten rechts</button><button type="button" data-point-index="3">↙ unten links</button></div>
+            <div class="actions"><button type="button" id="resetPerspective">Perspektivpunkte zurücksetzen</button></div>
+            <p>Auf die vier gleichen Türrahmen-Ecken klicken. Punktreihenfolge: oben links, oben rechts, unten rechts, unten links.</p>
+          </div>
+        </div>
+        <div class="canvas-panel"><div class="canvas-shell"><canvas class="editor-canvas" id="pointCanvas" width="694" height="925" aria-label="Perspektivpunkte"></canvas></div><p class="canvas-status" id="pointStatus"></p></div>
+      </div>
+    </section>
+
+    <section class="workflow-step" id="stepComparison" data-workflow-step="comparison">
+      <div class="step-heading"><div><h2>Vergleich und Deckung</h2><p>Türmotiv mit Slider, Überlagerung, Blinken und Einzelansichten kontrollieren.</p></div><span class="step-number">3</span></div>
+      <div class="workbench-grid">
+        <div class="tool-panel compare-controls">
+          <div class="canvas-toolbar" id="comparisonModes"><button type="button" data-compare-mode="slider" class="is-active">Slider</button><button type="button" data-compare-mode="overlay">Überlagerung</button><button type="button" data-compare-mode="blink">Blinken</button><button type="button" data-compare-mode="before">Nur Vorher</button><button type="button" data-compare-mode="after">Nur Nachher</button></div>
+          <label class="compare-range">Sliderposition <input type="range" id="comparisonSlider" min="0" max="100" value="50"><output id="comparisonSliderOutput">50%</output></label>
+          <label class="compare-range">Deckkraft Nachher <input type="range" id="overlayOpacity" min="0" max="100" value="50"><output id="overlayOpacityOutput">50%</output></label>
+          <label class="checkline"><input type="checkbox" id="alignmentChecked"> Ausrichtung am Türmotiv geprüft</label>
+        </div>
+        <div class="canvas-panel"><div class="canvas-shell"><canvas class="editor-canvas" id="comparisonCanvas" width="694" height="925" aria-label="Ausrichtungsvergleich"></canvas></div><p class="canvas-status" id="comparisonStatus"></p></div>
+      </div>
+    </section>
+
+    <section class="workflow-step" id="stepAnonymization" data-workflow-step="anonymization">
+      <div class="step-heading"><div><h2>Sensible Inhalte anonymisieren</h2><p>Masken werden erst nach der Ausrichtung angewendet und nur in öffentliche Ableitungen eingebrannt.</p></div><span class="step-number">4</span></div>
+      <div class="workbench-grid">
+        <div class="tool-panel">
+          <div class="tool-group tool-grid">
+            <label>Vorschauseite <select id="maskPreviewSide"><option value="after">Nachher</option><option value="before">Vorher</option></select></label>
+            <label>Maskenmodus <select id="maskType"><option value="pixelate">Verpixeln</option><option value="cover">Abdecken</option><option value="blur">Stark weichzeichnen</option></select></label>
+            <label>Geltungsbereich <select id="maskScope"><option value="both">Beide</option><option value="before">Vorher</option><option value="after">Nachher</option></select></label>
+            <label>Bezeichnung <input type="text" id="maskLabel" value="Neue Maske" maxlength="80"></label>
+            <label>Abdeckfarbe <input type="color" id="maskColor" value="#687275"></label>
+            <label>Pixelgrösse <input type="number" id="maskPixelSize" min="12" max="80" value="24"></label>
+            <label>Weichzeichner <input type="number" id="maskBlurRadius" min="16" max="60" value="28"></label>
+            <div class="span-2 actions"><button type="button" id="sampleColor">Pipette aktivieren</button><button type="button" id="newMask">Neue Rechteckmaske zeichnen</button><button type="button" id="resetMasks">Alle Masken zurücksetzen</button></div>
+            <p class="span-2">Für Datenschutzmerkmale ist Verpixeln voreingestellt. Starkes Weichzeichnen allein gilt nicht als sicherer Standard.</p>
+          </div>
+          <div class="mask-list" id="maskList"></div>
+          <label class="checkline"><input type="checkbox" id="anonymizationChecked"> Hausnummer und Briefkastenschild im Ergebnis geprüft</label>
+        </div>
+        <div class="canvas-panel"><div class="canvas-shell"><canvas class="editor-canvas" id="maskCanvas" width="694" height="925" aria-label="Anonymisierungsmasken"></canvas></div><p class="canvas-status" id="maskStatus">Maske auswählen oder „Neue Rechteckmaske zeichnen“ anklicken.</p></div>
+      </div>
+    </section>
+
+    <section class="workflow-step" id="stepCrop" data-workflow-step="crop">
+      <div class="step-heading"><div><h2>Gemeinsamer Hero-Ausschnitt und Bildangaben</h2><p>Desktop und Mobil verwenden je Paar denselben sichtbaren Motivbereich für Vorher und Nachher.</p></div><span class="step-number">5</span></div>
+      <div class="editor-grid">
       <aside class="panel">
         <h2>Bildangaben</h2>
         <div class="form-grid">
@@ -56,6 +144,7 @@
           <label class="span-2">Alternativtext Vorher <textarea id="beforeAlt" maxlength="220"></textarea></label>
           <label class="span-2">Alternativtext Nachher <textarea id="afterAlt" maxlength="220"></textarea></label>
           <div class="span-2 checks">
+            <label class="check"><input id="publicApproved" type="checkbox"> Öffentlich freigegeben</label>
             <label class="check"><input id="heroEligible" type="checkbox"> Hero geeignet</label>
             <label class="check"><input id="heroActive" type="checkbox"> Hero aktiv</label>
           </div>
@@ -69,14 +158,29 @@
           <h2>Vollständiger Hero · <span>Desktop 16:9</span></h2>
           <div class="hero-preview desktop" id="desktopPreview" data-device="desktop" aria-label="Desktop-Hero-Vorschau"></div>
           <div class="controls" id="desktopControls"></div>
+          <label class="checkline"><input type="checkbox" id="desktopCropChecked"> Desktop-Ausschnitt geprüft</label>
         </section>
         <section class="preview-card mobile-card">
           <h2>Vollständiger Hero · <span>Mobil 390 × 700</span></h2>
           <div class="hero-preview mobile" id="mobilePreview" data-device="mobile" aria-label="Mobile-Hero-Vorschau"></div>
           <div class="controls" id="mobileControls"></div>
+          <label class="checkline"><input type="checkbox" id="mobileCropChecked"> Mobile-Ausschnitt geprüft</label>
         </section>
       </div>
-    </div>
+      </div>
+    </section>
+
+    <section class="workflow-step" id="stepExport" data-workflow-step="export">
+      <div class="step-heading"><div><h2>Exportvorschau bei 100 Prozent</h2><p>Tatsächliche Ausgabe inklusive Ausrichtung, Anonymisierung und Zuschnitt pixelgenau kontrollieren.</p></div><span class="step-number">6</span></div>
+      <div class="actions">
+        <label>Format <select id="exportDevice" class="compact-select"><option value="desktop">Desktop 1920 × 1080</option><option value="mobile">Mobil 780 × 1400</option></select></label>
+        <label>Seite <select id="exportSide" class="compact-select"><option value="before">Vorher</option><option value="after">Nachher</option></select></label>
+        <button type="button" id="refreshExportPreview">Exportvorschau aktualisieren</button>
+      </div>
+      <div class="export-preview-scroll"><canvas id="exportPreviewCanvas" width="1920" height="1080" aria-label="Exportvorschau in Originalauflösung"></canvas></div>
+      <p class="export-summary" id="exportPreviewStatus">Vorschau noch nicht erzeugt.</p>
+      <label class="checkline"><input type="checkbox" id="exportPreviewChecked"> Exportvorschau bei 100 Prozent geprüft</label>
+    </section>
 
     <section class="panel workflow">
       <h2>Übernahme in die lokale Website</h2>
@@ -86,6 +190,7 @@
     </section>
   </main>
   <script src="image-config.js"></script>
+  <script src="image-editor-config.js"></script>
   <script src="bildausschnitt-editor.js"></script>
 </body>
 </html>

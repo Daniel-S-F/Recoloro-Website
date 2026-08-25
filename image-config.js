@@ -2,7 +2,7 @@
 'use strict';
 
 window.RECOLORO_IMAGE_CONFIG = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   updatedAt: '2026-08-25',
   groups: [
     { id: 'tueren-tore', label: 'Türen & Tore' },
@@ -13,6 +13,7 @@ window.RECOLORO_IMAGE_CONFIG = {
   ],
   heroDefaults: {
     quality: 0.9,
+    backgroundColor: '#F3F4F5',
     desktop: { width: 1920, height: 1080 },
     mobile: { width: 780, height: 1400 }
   },
@@ -219,6 +220,43 @@ window.RECOLORO_IMAGE_CONFIG = {
         postalCode: null,
         rightsProof: null,
         placements: ['hero']
+      }
+    },
+    {
+      id: 'orig-001',
+      internalLabel: 'Eingangstüre · Pilot Ausrichtung/Anonymisierung',
+      component: 'Eingangstüre',
+      group: 'tueren-tore',
+      displayTitle: 'Aufgefrischte Eingangstüre aus Metall',
+      alt: {
+        before: 'Eingangstüre vor der RECOLORO-Behandlung',
+        after: 'Eingangstüre nach der RECOLORO-Behandlung'
+      },
+      publicApproved: false,
+      heroEligible: false,
+      heroActive: false,
+      heroOrder: null,
+      source: {
+        before: 'assets/images/bildpaare/orig-001-vor.jpg',
+        after: 'assets/images/bildpaare/orig-001-nach.jpg'
+      },
+      generated: {
+        desktop: { before: null, after: null },
+        mobile: { before: null, after: null }
+      },
+      crop: {
+        desktop: { x: 48, y: 43, zoom: 1.2 },
+        mobile: { x: 48, y: 46, zoom: 1.05 }
+      },
+      metadata: {
+        quality: null,
+        objectType: 'Eingangstüre',
+        originPartner: null,
+        country: null,
+        postalCode: null,
+        rightsProof: null,
+        placements: [],
+        tags: ['Eingangstüre', 'Metall', 'Wohnhaus']
       }
     }
   ]

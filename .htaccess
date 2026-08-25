@@ -22,8 +22,8 @@ Options -Indexes
   Require all denied
 </FilesMatch>
 
-# Der Bildausschnitt-Editor ist ein internes lokales Werkzeug und darf
-# bei einem produktiven Apache-Deployment nicht extern erreichbar sein.
-<Files "bildausschnitt-editor.html">
+# Editor, interne Bearbeitungsparameter und nicht anonymisierte Pilotquellen
+# dürfen bei einem produktiven Apache-Deployment nicht extern erreichbar sein.
+<FilesMatch "^(?:bildausschnitt-editor\.html|bildausschnitt-editor\.js|image-editor-config\.js|orig-001-(?:vor|nach)\.jpg)$">
   Require local
-</Files>
+</FilesMatch>
