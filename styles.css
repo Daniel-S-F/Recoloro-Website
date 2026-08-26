@@ -385,13 +385,14 @@ body {
 .hero-claim-brand,
 .hero-claim-message {
   display: inline-block;
+  vertical-align: middle;
   opacity: 0;
   will-change: opacity, transform;
   transition: opacity 650ms var(--ease-smooth), transform 460ms var(--ease-smooth);
 }
 
 .hero-claim-brand {
-  margin-right: .22em;
+  margin-right: clamp(10px, 1vw, 16px);
   width: clamp(174px, 27vw, 332px);
   line-height: 0;
   transform: translateY(12px);
@@ -405,7 +406,7 @@ body {
 }
 
 .hero-claim-message {
-  font-size: clamp(2rem, 4.5vw, 4.7rem);
+  font-size: clamp(2rem, 4.5vw, 3.7rem);
   font-weight: 300;
   letter-spacing: -0.04em;
   line-height: .98;
