@@ -834,14 +834,14 @@ body {
 /* ── Anwendungsgrafik / Hotspots ───────────────── */
 .applications-section {
   min-height: calc(100svh - var(--nav-h-scrolled));
-  padding: clamp(32px, 4vw, 60px) var(--nav-pad) clamp(48px, 6vw, 88px);
+  padding: clamp(18px, 2vw, 30px) var(--nav-pad) 24px;
   background: var(--bg);
   scroll-margin-top: var(--nav-h-scrolled);
 }
 
 .applications-intro {
-  max-width: 1540px;
-  margin: 0 auto clamp(24px, 3vw, 40px);
+  max-width: 1480px;
+  margin: 0 auto clamp(26px, 4vh, 44px);
   text-align: left;
 }
 
@@ -856,18 +856,19 @@ body {
 
 .applications-intro h1 {
   max-width: 980px;
-  font-size: clamp(2rem, 3.35vw, 3.35rem);
+  font-size: clamp(1.85rem, 2.8vw, 2.9rem);
   font-weight: 300;
   line-height: 1.08;
 }
 
 .applications-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2.25fr) minmax(380px, .9fr);
-  gap: clamp(24px, 3vw, 48px);
-  max-width: 1540px;
+  grid-template-columns: minmax(0, 1.7fr) minmax(470px, 1fr);
+  gap: clamp(24px, 2.5vw, 38px);
+  max-width: 1480px;
+  min-height: min(66vh, 700px);
   margin: 0 auto;
-  align-items: start;
+  align-items: end;
 }
 
 .hotspot-figure {
@@ -899,32 +900,24 @@ body {
 .hotspot-button {
   position: absolute;
   z-index: 1;
-  width: clamp(20px, 1.7vw, 28px);
-  height: clamp(20px, 1.7vw, 28px);
+  width: clamp(23px, 1.8vw, 30px);
+  height: clamp(23px, 1.8vw, 30px);
   transform: translate(-50%, -50%);
   border: 2px solid #fff;
   border-radius: 50%;
   background: rgba(255, 255, 255, .96);
+  color: var(--blue);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(30, 36, 40, .28);
-  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
 }
 
-.hotspot-button::before,
-.hotspot-button::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 2px;
-  background: var(--blue);
-  transform: translate(-50%, -50%);
-  transition: background .18s ease;
-}
-
-.hotspot-button::after {
-  transform: translate(-50%, -50%) rotate(90deg);
+.hotspot-mark {
+  display: block;
+  width: 62%;
+  height: 62%;
+  margin: auto;
+  fill: currentColor;
 }
 
 .hotspot-button:hover,
@@ -932,67 +925,19 @@ body {
 .hotspot-button.is-active {
   z-index: 2;
   background: var(--blue);
+  color: #fff;
   transform: translate(-50%, -50%) scale(1.2);
   box-shadow: 0 0 0 5px rgba(15, 70, 212, .16), 0 4px 14px rgba(0, 0, 0, .25);
   outline: none;
 }
 
-.hotspot-button:hover::before,
-.hotspot-button:hover::after,
-.hotspot-button:focus-visible::before,
-.hotspot-button:focus-visible::after,
-.hotspot-button.is-active::before,
-.hotspot-button.is-active::after {
-  background: #fff;
-}
-
-.hotspot-tooltip {
-  position: absolute;
-  z-index: 4;
-  width: min(240px, 34%);
-  padding: 11px 13px;
-  border-left: 3px solid var(--blue);
-  background: rgba(255, 255, 255, .97);
-  color: var(--anthracite);
-  pointer-events: none;
-  box-shadow: 0 10px 28px rgba(30, 36, 40, .18);
-  transform: translate(18px, -50%);
-}
-
-.hotspot-tooltip.is-left {
-  border-right: 3px solid var(--blue);
-  border-left: 0;
-  transform: translate(calc(-100% - 18px), -50%);
-}
-
-.hotspot-tooltip.is-below {
-  transform: translate(18px, 18px);
-}
-
-.hotspot-tooltip.is-left.is-below {
-  transform: translate(calc(-100% - 18px), 18px);
-}
-
-.hotspot-tooltip strong,
-.hotspot-tooltip span {
-  display: block;
-}
-
-.hotspot-tooltip strong {
-  font-size: .86rem;
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-.hotspot-tooltip span {
-  margin-top: 4px;
-  color: #687078;
-  font-size: .72rem;
-  line-height: 1.35;
-}
-
 .application-index {
   min-width: 0;
+  align-self: stretch;
+  padding: clamp(22px, 2.2vw, 32px);
+  border-top: 3px solid var(--blue);
+  background: var(--warm-white);
+  box-shadow: 0 18px 50px rgba(30, 36, 40, .07);
 }
 
 .application-index__title {
@@ -1007,17 +952,17 @@ body {
 .application-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 7px;
 }
 
 .application-item {
-  min-height: 48px;
-  padding: 9px 11px;
+  min-height: 41px;
+  padding: 8px 10px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, .58);
   color: var(--anthracite);
   font-family: var(--font);
-  font-size: .78rem;
+  font-size: .82rem;
   font-weight: 300;
   line-height: 1.25;
   text-align: left;
@@ -1037,8 +982,9 @@ body {
 
 @media (max-width: 1120px) {
   .applications-layout {
-    grid-template-columns: minmax(0, 1.7fr) minmax(330px, .9fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(420px, 1fr);
     gap: 24px;
+    min-height: min(66vh, 650px);
   }
 
   .application-item {
@@ -1048,21 +994,23 @@ body {
 
 @media (max-width: 900px) {
   .applications-section { padding: 32px 24px 64px; }
-  .applications-layout { grid-template-columns: 1fr; }
+  .applications-layout { grid-template-columns: 1fr; min-height: 0; align-items: start; }
   .hotspot-figure { width: min(100%, 900px); margin: 0 auto; }
   .application-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .application-index { margin-top: 24px; }
 }
 
 @media (max-width: 640px) {
   .applications-intro { margin-bottom: 22px; }
   .applications-intro h1 { font-size: clamp(1.85rem, 9vw, 2.65rem); }
   .application-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hotspot-tooltip { width: min(210px, 54%); }
+  .hotspot-button { width: 21px; height: 21px; }
+  .application-index { padding: 20px; }
+  .application-item { min-height: 42px; font-size: .76rem; }
 }
 
-@media (max-width: 420px) {
-  .application-list { grid-template-columns: 1fr; }
-  .application-item { min-height: 42px; }
+@media (min-width: 901px) {
+  .applications-intro h1 { white-space: nowrap; }
 }
 
 @media (max-width: 480px) {

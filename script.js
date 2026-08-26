@@ -89,9 +89,6 @@ const heroClaim     = document.getElementById('heroClaim');
 const heroCta       = document.getElementById('heroCta');
 const heroContext   = document.getElementById('heroContext');
 const hotspotLayer  = document.getElementById('hotspotLayer');
-const hotspotTooltip = document.getElementById('hotspotTooltip');
-const hotspotTooltipTitle = document.getElementById('hotspotTooltipTitle');
-const hotspotTooltipDescription = document.getElementById('hotspotTooltipDescription');
 const applicationList = document.getElementById('applicationList');
 const leadForm      = document.getElementById('leadForm');
 const formNote      = document.getElementById('formNote');
@@ -484,11 +481,6 @@ navMenu.querySelectorAll('a[href^="#"]').forEach(link => {
 
 let activeApplicationId = null;
 
-function applicationDescription(application) {
-  return application.description
-    || 'Typisches pulverbeschichtetes Bauteil. Eignung und Zustand werden am Objekt geprüft.';
-}
-
 function showApplication(application) {
   activeApplicationId = application.id;
   document.querySelectorAll('[data-application-id]').forEach(element => {
@@ -496,19 +488,6 @@ function showApplication(application) {
     element.classList.toggle('is-active', isActive);
     element.setAttribute('aria-pressed', String(isActive));
   });
-
-  if (!hotspotTooltip || !Number.isFinite(application.x) || !Number.isFinite(application.y)) {
-    if (hotspotTooltip) hotspotTooltip.hidden = true;
-    return;
-  }
-
-  hotspotTooltipTitle.textContent = application.title;
-  hotspotTooltipDescription.textContent = applicationDescription(application);
-  hotspotTooltip.style.left = `${application.x}%`;
-  hotspotTooltip.style.top = `${application.y}%`;
-  hotspotTooltip.classList.toggle('is-left', application.x > 68);
-  hotspotTooltip.classList.toggle('is-below', application.y < 18);
-  hotspotTooltip.hidden = false;
 }
 
 function clearApplication(applicationId) {
@@ -518,7 +497,6 @@ function clearApplication(applicationId) {
     element.classList.remove('is-active');
     element.setAttribute('aria-pressed', 'false');
   });
-  if (hotspotTooltip) hotspotTooltip.hidden = true;
 }
 
 function bindApplicationInteraction(button, application) {
@@ -601,15 +579,15 @@ function buildApplications() {
   if (!hotspotLayer || !applicationList || !applications.length) return;
 
   [...applications]
-    .sort((a, b) => a.title.localeCompare(b.title, 'de-CH', { sensitivity: 'base' }))
+    .sort((a, b) => (a.label || a.title).localeCompare(b.label || b.title, 'de-CH', { sensitivity: 'base' }))
     .forEach(application => {
       const listButton = document.createElement('button');
       listButton.type = 'button';
       listButton.className = 'application-item';
       listButton.dataset.applicationId = application.id;
       listButton.dataset.galleryPairId = application.galleryPairId || '';
-      listButton.textContent = application.title;
-      listButton.setAttribute('aria-label', `${application.title} in der Grafik hervorheben`);
+      listButton.textContent = application.label || application.title;
+      listButton.setAttribute('aria-label', `${application.label || application.title} in der Grafik hervorheben`);
       listButton.setAttribute('aria-pressed', 'false');
       bindApplicationInteraction(listButton, application);
       applicationList.appendChild(listButton);
@@ -627,6 +605,7 @@ function buildApplications() {
       hotspotButton.style.top = `${application.y}%`;
       hotspotButton.setAttribute('aria-label', application.title);
       hotspotButton.setAttribute('aria-pressed', 'false');
+      hotspotButton.innerHTML = `<svg class="hotspot-mark" viewBox="133.8 0 436.98 436.98" aria-hidden="true" focusable="false"><path d="M527.87,249.31c-26.18,26.19-62.2,42.56-101.84,42.92L133.8,0h290.87c80.37,0,146.11,65.75,146.11,146.12,0,40.17-16.44,76.71-42.91,103.19Z"/><path d="M424.67,292.24c.45,0,.9,0,1.36-.01l144.75,144.75h-292.22l-144.76-144.74h290.87Z"/></svg>`;
       bindApplicationInteraction(hotspotButton, application);
       hotspotLayer.appendChild(hotspotButton);
   });
