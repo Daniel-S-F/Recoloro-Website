@@ -115,25 +115,26 @@
   <section id="anwendungen" class="applications-section" aria-labelledby="applicationsTitle">
     <div class="applications-intro">
       <p class="section-eyebrow">Anwendungen</p>
-      <h1 id="applicationsTitle">Wo RECOLORO Farbe auffrischt</h1>
-      <p>Im Mittelpunkt stehen verwitterte, technisch intakte pulverbeschichtete Metallbauteile. Andere organisch beschichtete Metalloberflächen beurteilen wir vor der Ausführung individuell.</p>
+      <h1 id="applicationsTitle">Ideal bei pulverbeschichteten Bauteilen</h1>
     </div>
 
-    <div class="hotspot-layout">
-      <figure class="hotspot-figure" aria-describedby="hotspotHelp">
+    <div class="applications-layout">
+      <figure class="hotspot-figure">
         <div class="hotspot-stage" id="hotspotStage">
           <img src="assets/images/anwendungsgrafik-efh-gh-1.png"
                alt="Anwendungsgrafik eines Einfamilien- und Mehrfamilienhauses mit unterschiedlichen Bauteilen"
                class="hotspot-image" width="1536" height="1024">
           <div class="hotspot-layer" id="hotspotLayer" aria-label="Interaktive Bauteile"></div>
+          <div class="hotspot-tooltip" id="hotspotTooltip" role="status" aria-live="polite" hidden>
+            <strong id="hotspotTooltipTitle"></strong>
+            <span id="hotspotTooltipDescription"></span>
+          </div>
         </div>
-        <figcaption id="hotspotHelp">Die Markierungen zeigen typische beschichtete Metallbauteile – nicht die Behandlung von Glasflächen.</figcaption>
       </figure>
 
-      <aside class="hotspot-info" id="hotspotInfo" aria-live="polite" aria-atomic="true">
-        <p class="hotspot-info__number" id="hotspotInfoNumber">Anwendung</p>
-        <h2 id="hotspotInfoTitle">Metallbauteil auswählen</h2>
-        <p id="hotspotInfoDescription">Wählen Sie einen Punkt, um ein typisches Bauteil anzuzeigen. Zustand, Beschichtung und Eignung werden vor jeder Ausführung geprüft.</p>
+      <aside class="application-index" aria-labelledby="applicationIndexTitle">
+        <p class="application-index__title" id="applicationIndexTitle">Bauteile A–Z</p>
+        <div class="application-list" id="applicationList"></div>
       </aside>
     </div>
   </section>

@@ -1,6 +1,7 @@
 /* RECOLORO – Anwendungsgrafik EFH/GH 1
    Die Koordinaten beziehen sich auf die Mitte des Hotspots in Prozent.
-   Beschreibungen werden fachlich ergänzt, sobald sie freigegeben sind. */
+   Listeneinträge ohne Koordinaten sind zulässig. Für die spätere Verknüpfung
+   mit Bildbeispielen kann je Eintrag galleryPairId ergänzt werden. */
 window.RECOLORO_HOTSPOTS = [
   { id: '01', title: 'Velo-Unterstände', x: 4.667, y: 64.250 },
   { id: '02', title: 'Garagentore', x: 14.833, y: 71.750 },

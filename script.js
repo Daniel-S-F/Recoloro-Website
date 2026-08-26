@@ -89,9 +89,10 @@ const heroClaim     = document.getElementById('heroClaim');
 const heroCta       = document.getElementById('heroCta');
 const heroContext   = document.getElementById('heroContext');
 const hotspotLayer  = document.getElementById('hotspotLayer');
-const hotspotInfoNumber = document.getElementById('hotspotInfoNumber');
-const hotspotInfoTitle = document.getElementById('hotspotInfoTitle');
-const hotspotInfoDescription = document.getElementById('hotspotInfoDescription');
+const hotspotTooltip = document.getElementById('hotspotTooltip');
+const hotspotTooltipTitle = document.getElementById('hotspotTooltipTitle');
+const hotspotTooltipDescription = document.getElementById('hotspotTooltipDescription');
+const applicationList = document.getElementById('applicationList');
 const leadForm      = document.getElementById('leadForm');
 const formNote      = document.getElementById('formNote');
 const formStarted   = document.getElementById('formStarted');
@@ -462,27 +463,72 @@ navHamburger.addEventListener('click', () => {
   navHamburger.setAttribute('aria-label', isOpen ? 'Menü schliessen' : 'Menü öffnen');
 });
 
+function closeNavigationMenu() {
+  navMenu.classList.remove('is-open');
+  navHamburger.classList.remove('is-open');
+  navHamburger.setAttribute('aria-expanded', 'false');
+  navHamburger.setAttribute('aria-label', 'Menü öffnen');
+}
+
 document.addEventListener('click', (e) => {
   if (!nav.contains(e.target) && navMenu.classList.contains('is-open')) {
-    navMenu.classList.remove('is-open');
-    navHamburger.classList.remove('is-open');
-    navHamburger.setAttribute('aria-expanded', 'false');
-    navHamburger.setAttribute('aria-label', 'Menü öffnen');
+    closeNavigationMenu();
   }
+});
+
+navMenu.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', closeNavigationMenu);
 });
 
 /* ── Anwendungsgrafik / Hotspots ───────────────── */
 
-function showHotspotInfo(hotspot) {
-  hotspotInfoNumber.textContent = `Anwendung ${hotspot.id}`;
-  hotspotInfoTitle.textContent = hotspot.title;
-  hotspotInfoDescription.textContent = hotspot.description
-    || `${hotspot.title} können je nach Material, Beschichtung und Zustand für eine Farbauffrischung geeignet sein. Die Eignung wird vor der Ausführung geprüft.`;
+let activeApplicationId = null;
 
-  document.querySelectorAll('.hotspot-button').forEach(button => {
-    button.classList.toggle('is-active', button.dataset.hotspotId === hotspot.id);
-    button.setAttribute('aria-pressed', String(button.dataset.hotspotId === hotspot.id));
+function applicationDescription(application) {
+  return application.description
+    || 'Typisches pulverbeschichtetes Bauteil. Eignung und Zustand werden am Objekt geprüft.';
+}
+
+function showApplication(application) {
+  activeApplicationId = application.id;
+  document.querySelectorAll('[data-application-id]').forEach(element => {
+    const isActive = element.dataset.applicationId === application.id;
+    element.classList.toggle('is-active', isActive);
+    element.setAttribute('aria-pressed', String(isActive));
   });
+
+  if (!hotspotTooltip || !Number.isFinite(application.x) || !Number.isFinite(application.y)) {
+    if (hotspotTooltip) hotspotTooltip.hidden = true;
+    return;
+  }
+
+  hotspotTooltipTitle.textContent = application.title;
+  hotspotTooltipDescription.textContent = applicationDescription(application);
+  hotspotTooltip.style.left = `${application.x}%`;
+  hotspotTooltip.style.top = `${application.y}%`;
+  hotspotTooltip.classList.toggle('is-left', application.x > 68);
+  hotspotTooltip.classList.toggle('is-below', application.y < 18);
+  hotspotTooltip.hidden = false;
+}
+
+function clearApplication(applicationId) {
+  if (activeApplicationId !== applicationId) return;
+  activeApplicationId = null;
+  document.querySelectorAll('[data-application-id]').forEach(element => {
+    element.classList.remove('is-active');
+    element.setAttribute('aria-pressed', 'false');
+  });
+  if (hotspotTooltip) hotspotTooltip.hidden = true;
+}
+
+function bindApplicationInteraction(button, application) {
+  button.addEventListener('mouseenter', () => showApplication(application));
+  button.addEventListener('focus', () => showApplication(application));
+  button.addEventListener('click', () => showApplication(application));
+  button.addEventListener('mouseleave', () => {
+    if (document.activeElement !== button) clearApplication(application.id);
+  });
+  button.addEventListener('blur', () => clearApplication(application.id));
 }
 
 /* ── Offertanfrage ─────────────────────────────── */
@@ -550,24 +596,39 @@ if (leadForm) {
   });
 }
 
-function buildHotspots() {
-  if (!hotspotLayer || !Array.isArray(window.RECOLORO_HOTSPOTS)) return;
+function buildApplications() {
+  const applications = Array.isArray(window.RECOLORO_HOTSPOTS) ? window.RECOLORO_HOTSPOTS : [];
+  if (!hotspotLayer || !applicationList || !applications.length) return;
 
-  window.RECOLORO_HOTSPOTS.forEach(hotspot => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'hotspot-button';
-    button.dataset.hotspotId = hotspot.id;
-    button.style.left = `${hotspot.x}%`;
-    button.style.top = `${hotspot.y}%`;
-    button.setAttribute('aria-label', `Anwendung ${hotspot.id}: ${hotspot.title}`);
-    button.setAttribute('aria-pressed', 'false');
-    button.textContent = hotspot.id;
+  [...applications]
+    .sort((a, b) => a.title.localeCompare(b.title, 'de-CH', { sensitivity: 'base' }))
+    .forEach(application => {
+      const listButton = document.createElement('button');
+      listButton.type = 'button';
+      listButton.className = 'application-item';
+      listButton.dataset.applicationId = application.id;
+      listButton.dataset.galleryPairId = application.galleryPairId || '';
+      listButton.textContent = application.title;
+      listButton.setAttribute('aria-label', `${application.title} in der Grafik hervorheben`);
+      listButton.setAttribute('aria-pressed', 'false');
+      bindApplicationInteraction(listButton, application);
+      applicationList.appendChild(listButton);
+    });
 
-    button.addEventListener('mouseenter', () => showHotspotInfo(hotspot));
-    button.addEventListener('focus', () => showHotspotInfo(hotspot));
-    button.addEventListener('click', () => showHotspotInfo(hotspot));
-    hotspotLayer.appendChild(button);
+  applications
+    .filter(application => Number.isFinite(application.x) && Number.isFinite(application.y))
+    .forEach(application => {
+      const hotspotButton = document.createElement('button');
+      hotspotButton.type = 'button';
+      hotspotButton.className = 'hotspot-button';
+      hotspotButton.dataset.applicationId = application.id;
+      hotspotButton.dataset.galleryPairId = application.galleryPairId || '';
+      hotspotButton.style.left = `${application.x}%`;
+      hotspotButton.style.top = `${application.y}%`;
+      hotspotButton.setAttribute('aria-label', application.title);
+      hotspotButton.setAttribute('aria-pressed', 'false');
+      bindApplicationInteraction(hotspotButton, application);
+      hotspotLayer.appendChild(hotspotButton);
   });
 }
 
@@ -584,5 +645,5 @@ document.querySelectorAll('.group-btn').forEach(btn => {
 
 loadPair(0);
 setSlider(98);
-buildHotspots();
+buildApplications();
 runIntro();
