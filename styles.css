@@ -369,7 +369,6 @@ body {
   color: white;
   margin-bottom: 10px;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
 }
 
 .hero-context {
@@ -382,41 +381,75 @@ body {
   text-shadow: 0 2px 12px rgba(0, 0, 0, .45);
 }
 
-.hero-claim-brand,
-.hero-claim-message {
+/*
+ * Wiederverwendbares Marken-Lockup: unverändertes RECOLORO-SVG plus Text.
+ * Referenz für die optische Kalibrierung ist ein Grossbuchstabe im Folgetext:
+ * Seine tatsächlich sichtbare Ober- und Unterkante muss mit dem Wortzeichen
+ * innerhalb von maximal einem Bildpixel übereinstimmen. CSS-Zeilenboxen sind
+ * ausdrücklich kein Abnahmekriterium.
+ */
+.brand-lockup {
+  --brand-lockup-brand-width: clamp(174px, 27vw, 332px);
+  --brand-lockup-gap: clamp(10px, 1vw, 16px);
+  --brand-lockup-message-size: clamp(1.85rem, 4.59vw, 3.525rem);
+  --brand-lockup-message-shift-y: -0.053em;
+  white-space: nowrap;
+}
+
+.brand-lockup__brand,
+.brand-lockup__message {
   display: inline-block;
   vertical-align: middle;
+}
+
+.brand-lockup__brand {
+  width: var(--brand-lockup-brand-width);
+  margin-right: var(--brand-lockup-gap);
+  line-height: 0;
+}
+
+.brand-lockup__wordmark {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.brand-lockup__message {
+  font-family: var(--font);
+  font-size: var(--brand-lockup-message-size);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: .98;
+  transform: translateY(var(--brand-lockup-message-shift-y));
+}
+
+.hero-claim-brand,
+.hero-claim-message {
   opacity: 0;
   will-change: opacity, transform;
   transition: opacity 650ms var(--ease-smooth), transform 460ms var(--ease-smooth);
 }
 
 .hero-claim-brand {
-  margin-right: clamp(10px, 1vw, 16px);
-  width: clamp(174px, 27vw, 332px);
-  line-height: 0;
   transform: translateY(12px);
 }
 
 .hero-wordmark {
-  display: block;
-  width: 100%;
-  height: auto;
   filter: brightness(0) invert(1);
 }
 
 .hero-claim-message {
-  font-size: clamp(2rem, 4.5vw, 3.7rem);
-  font-weight: 300;
-  letter-spacing: -0.04em;
-  line-height: .98;
-  transform: translateY(12px);
+  transform: translateY(calc(12px + var(--brand-lockup-message-shift-y)));
 }
 
-.hero-claim.is-brand-visible .hero-claim-brand,
+.hero-claim.is-brand-visible .hero-claim-brand {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .hero-claim.is-message-visible .hero-claim-message {
   opacity: 1;
-  transform: translate(0);
+  transform: translateY(var(--brand-lockup-message-shift-y));
 }
 
 .hero-cta {
@@ -1020,12 +1053,9 @@ body {
     line-height: .98;
   }
 
-  .hero-claim-message {
-    font-size: clamp(1.9rem, 9.7vw, 3rem);
-  }
-
-  .hero-claim-brand {
-    width: clamp(166px, 52vw, 242px);
+  .brand-lockup {
+    --brand-lockup-brand-width: clamp(166px, 52vw, 242px);
+    --brand-lockup-message-size: clamp(1.75rem, 8.84vw, 2.57rem);
   }
 
   .hero-cta {
