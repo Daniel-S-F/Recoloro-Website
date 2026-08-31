@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>RECOLORO – interner Farbvorschau-Editor</title>
+  <style>
+    :root {
+      --blue:#0f46d4; --blue-dark:#0a38a8; --ink:#1e2428; --muted:#667078;
+      --line:#d9dde0; --bg:#eef0f1; --paper:#f8f6f1; --white:#fff;
+      --ok:#176b38; --warn:#8b5700; --error:#9d2424; --mask:#00b7ff;
+      font-family:"Segoe UI",Arial,sans-serif;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); }
+    button,input,select,textarea { font:inherit; }
+    button,input,select { min-height:42px; }
+    button { padding:9px 14px; border:1px solid var(--line); background:var(--white); color:var(--ink); cursor:pointer; }
+    button:hover,button:focus-visible,button.is-active { border-color:var(--blue); color:var(--blue); }
+    button.is-active { background:#edf2ff; }
+    button.primary { border-color:var(--blue); background:var(--blue); color:#fff; }
+    button.primary:hover { background:var(--blue-dark); color:#fff; }
+    button.danger { color:var(--error); }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    input[type=text],input[type=number],select { width:100%; padding:8px 10px; border:1px solid var(--line); background:#fff; color:var(--ink); }
+    input[type=range] { width:100%; min-height:auto; accent-color:var(--blue); }
+    input[type=color] { width:58px; padding:3px; border:1px solid var(--line); background:#fff; }
+    [hidden] { display:none !important; }
+    header { display:flex; justify-content:space-between; gap:24px; padding:26px clamp(18px,4vw,64px); border-bottom:1px solid var(--line); background:var(--paper); }
+    header h1 { margin:0 0 7px; font-size:clamp(1.55rem,3vw,2.35rem); font-weight:400; }
+    header p { max-width:820px; margin:0; color:var(--muted); line-height:1.5; }
+    .status-stack { display:grid; align-content:start; gap:8px; min-width:230px; }
+    .badge { padding:7px 10px; border:1px solid var(--line); background:#fff; color:var(--muted); font-size:.78rem; }
+    .badge.ok { border-color:#add1b9; color:var(--ok); }
+    .badge.error { border-color:#e1aaaa; color:var(--error); }
+    main { max-width:1680px; margin:auto; padding:24px clamp(14px,3vw,48px) 70px; }
+    .step-nav { position:sticky; top:0; z-index:30; display:flex; overflow-x:auto; margin-bottom:20px; border:1px solid var(--line); background:#fff; box-shadow:0 8px 24px #0000000b; }
+    .step-nav button { flex:1 0 auto; min-height:48px; border:0; border-right:1px solid var(--line); font-size:.76rem; }
+    .step-nav button:last-child { border-right:0; }
+    .step-nav button.is-active { background:var(--blue); color:#fff; }
+    .step-nav button.is-complete::before { content:"✓ "; color:var(--ok); }
+    .step-nav button.is-active::before { color:#fff; }
+    .app-grid { display:grid; grid-template-columns:minmax(330px,430px) minmax(0,1fr); gap:22px; align-items:start; }
+    .steps { display:grid; gap:16px; }
+    .workflow-step { scroll-margin-top:72px; padding:18px; border:1px solid var(--line); background:var(--paper); }
+    .workflow-step.is-active { border-top:4px solid var(--blue); }
+    .step-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:15px; }
+    .step-heading h2 { margin:0 0 4px; font-size:1rem; }
+    .step-heading p { margin:0; color:var(--muted); font-size:.84rem; line-height:1.45; }
+    .step-number { display:grid; place-items:center; flex:0 0 32px; width:32px; height:32px; border-radius:50%; background:var(--blue); color:#fff; font-weight:700; }
+    .field { display:grid; gap:6px; margin-bottom:11px; color:var(--muted); font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+    .field output { color:var(--ink); font-weight:600; letter-spacing:0; text-transform:none; }
+    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .span-2 { grid-column:1/-1; }
+    .actions,.tool-row,.view-row { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+    .actions + .actions { margin-top:8px; }
+    .dropzone { padding:20px; border:2px dashed #b8c0c6; background:#fff; text-align:center; color:var(--muted); cursor:pointer; }
+    .dropzone.is-dragging { border-color:var(--blue); background:#edf2ff; }
+    .dropzone strong { display:block; margin-bottom:4px; color:var(--ink); }
+    .meta { display:grid; gap:5px; margin-top:12px; padding:11px; border:1px solid var(--line); background:#fff; font-size:.8rem; }
+    .meta div { display:flex; justify-content:space-between; gap:12px; }
+    .meta span { color:var(--muted); }
+    .notice { margin:12px 0 0; padding:11px 12px; border-left:3px solid var(--warn); background:#fff7e8; color:#684200; font-size:.82rem; line-height:1.45; }
+    .notice.error { border-color:var(--error); background:#fff0f0; color:#7f1d1d; }
+    .notice.ok { border-color:var(--ok); background:#f1fbf4; color:var(--ok); }
+    .choice-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .choice { display:flex; align-items:flex-start; gap:8px; padding:10px; border:1px solid var(--line); background:#fff; color:var(--ink); font-size:.82rem; line-height:1.4; cursor:pointer; }
+    .choice input { flex:0 0 auto; min-height:auto; accent-color:var(--blue); }
+    .choice strong,.choice small { display:block; }
+    .choice small { margin-top:2px; color:var(--muted); }
+    .samples { display:grid; gap:7px; margin-top:10px; }
+    .sample { display:grid; grid-template-columns:28px 1fr auto; gap:8px; align-items:center; padding:8px; border:1px solid var(--line); background:#fff; font-size:.78rem; }
+    .swatch { width:28px; height:28px; border:1px solid #0002; }
+    .sample button { min-height:30px; padding:3px 8px; }
+    .colour-preview { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid var(--line); background:#fff; }
+    .colour-preview .swatch { width:46px; height:46px; }
+    .colour-preview strong,.colour-preview small { display:block; }
+    .colour-preview small { color:var(--muted); }
+    .tool-panel { display:grid; gap:10px; }
+    .tool-row button { flex:1 1 112px; min-height:38px; padding:7px 9px; font-size:.78rem; }
+    #maskTools button.is-active { border-color:var(--blue); background:var(--blue); color:#fff; box-shadow:0 0 0 2px #0f46d426; font-weight:700; }
+    #maskTools button.is-active::before { content:"✓ "; }
+    .active-tool-status { display:grid; gap:2px; min-height:48px; padding:9px 11px; border:1px solid #b9c8ef; background:#edf2ff; color:#33405c; font-size:.8rem; line-height:1.4; }
+    .active-tool-status strong { color:var(--blue-dark); }
+    .workspace { position:sticky; top:68px; min-width:0; padding:16px; border:1px solid var(--line); background:var(--paper); }
+    .workspace-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+    .workspace-toolbar button { min-height:36px; padding:7px 10px; font-size:.78rem; }
+    .canvas-shell { position:relative; height:clamp(430px,70vh,860px); overflow:hidden; border:1px solid #9da4aa; background-color:#c8ccd0; background-image:linear-gradient(45deg,#b5babf 25%,transparent 25%),linear-gradient(-45deg,#b5babf 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#b5babf 75%),linear-gradient(-45deg,transparent 75%,#b5babf 75%); background-size:24px 24px; background-position:0 0,0 12px,12px -12px,-12px 0; }
+    #editorCanvas { display:block; width:100%; height:100%; touch-action:none; cursor:crosshair; }
+    #editorCanvas.is-pan { cursor:grab; }
+    #editorCanvas.is-panning { cursor:grabbing; }
+    .canvas-empty { position:absolute; inset:0; display:grid; place-items:center; padding:30px; color:#4e5961; text-align:center; pointer-events:none; }
+    .canvas-empty strong { display:block; margin-bottom:5px; font-size:1.1rem; }
+    .canvas-status { display:flex; justify-content:space-between; gap:14px; margin-top:10px; color:var(--muted); font-size:.79rem; line-height:1.4; }
+    .legend { display:flex; flex-wrap:wrap; gap:12px; }
+    .legend span::before { content:""; display:inline-block; width:10px; height:10px; margin-right:5px; border-radius:50%; background:var(--mask); }
+    .progress { height:8px; overflow:hidden; margin-top:10px; background:#d9dde0; }
+    .progress span { display:block; width:0; height:100%; background:var(--blue); transition:width .18s ease; }
+    .result-summary { margin-top:10px; color:var(--muted); font-size:.8rem; line-height:1.45; }
+    .disclaimer { padding:12px; border:1px solid #dfc183; background:#fff8e8; color:#65430a; font-size:.8rem; line-height:1.45; }
+    kbd { padding:2px 5px; border:1px solid var(--line); background:#fff; box-shadow:0 1px 0 #aaa; font-size:.72rem; }
+    @media(max-width:1050px) {
+      .app-grid { grid-template-columns:1fr; }
+      .workspace { position:relative; top:auto; grid-row:1; }
+      .canvas-shell { height:min(68vh,700px); }
+    }
+    @media(max-width:640px) {
+      header { display:block; }
+      .status-stack { min-width:0; margin-top:16px; }
+      main { padding-inline:10px; }
+      .field-grid,.choice-grid { grid-template-columns:1fr; }
+      .span-2 { grid-column:auto; }
+      .workspace { padding:10px; }
+      .canvas-shell { height:56vh; min-height:360px; }
+      .canvas-status { display:grid; }
+      .step-nav button { padding-inline:10px; font-size:.68rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Interner Farbvorschau-Editor</h1>
+      <p>Oberfläche auswählen, Recoloro-Auffrischung oder eine hypothetische Farbvariante visualisieren und lokal exportieren. Originalfoto und Bearbeitungszustand bleiben getrennt.</p>
+    </div>
+    <div class="status-stack">
+      <div class="badge ok">Nur lokale Bildverarbeitung</div>
+      <div class="badge" id="engineStatus">Bildpipeline wird geladen</div>
+    </div>
+  </header>
+
+  <main>
+    <nav class="step-nav" id="stepNav" aria-label="Arbeitsschritte">
+      <button type="button" data-step="stepPhoto" class="is-active">1 Foto</button>
+      <button type="button" data-step="stepMask">2 Oberfläche</button>
+      <button type="button" data-step="stepMode">3 Modus</button>
+      <button type="button" data-step="stepReferences">4 RAL/NCS</button>
+      <button type="button" data-step="stepTransfer">5 Übertragung</button>
+      <button type="button" data-step="stepGloss">6 Glanz</button>
+      <button type="button" data-step="stepCompare">7 Kontrolle</button>
+      <button type="button" data-step="stepExport">8 Speichern</button>
+    </nav>
+
+    <div class="app-grid">
+      <div class="steps">
+        <section class="workflow-step is-active" id="stepPhoto" data-workflow-step="photo">
+          <div class="step-heading"><div><h2>Foto laden</h2><p>JPEG, PNG oder WebP. EXIF-Orientierung wird beim lokalen Dekodieren berücksichtigt.</p></div><span class="step-number">1</span></div>
+          <input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+          <div class="dropzone" id="dropzone" tabindex="0" role="button">
+            <strong>Foto hier ablegen oder auswählen</strong>
+            <span>Das Bild verlässt diesen Computer nicht.</span>
+          </div>
+          <div class="actions" style="margin-top:10px">
+            <button type="button" id="choosePhoto">Foto auswählen</button>
+            <button type="button" id="rotateLeft" disabled aria-label="Foto 90 Grad nach links drehen">↶ 90° links</button>
+            <button type="button" id="rotateRight" disabled aria-label="Foto 90 Grad nach rechts drehen">90° rechts ↷</button>
+            <button type="button" id="clearPhoto" class="danger" disabled>Foto entfernen</button>
+          </div>
+          <input id="projectInput" type="file" accept="application/json,.json,.recoloro.json" hidden>
+          <button type="button" id="openProject" style="margin-top:8px;width:100%">Gespeichertes Projekt öffnen</button>
+          <div class="meta" id="photoMeta" hidden>
+            <div><span>Datei</span><strong id="metaName"></strong></div>
+            <div><span>Format / Grösse</span><strong id="metaFormat"></strong></div>
+            <div><span>Ausrichtung / Auflösung</span><strong id="metaDimensions"></strong></div>
+            <div><span>Arbeitsvorschau</span><strong id="metaWorking"></strong></div>
+          </div>
+          <div class="notice" id="photoNotice">Was nicht stimmt, wo es auftritt und wie es behoben wird, erscheint jeweils direkt an diesem Schritt.</div>
+        </section>
+
+        <section class="workflow-step" id="stepMask" data-workflow-step="mask">
+          <div class="step-heading"><div><h2>Oberfläche auswählen</h2><p>Setze Proben im hellen, mittleren und dunklen Bereich und korrigiere die Maske bei Bedarf.</p></div><span class="step-number">2</span></div>
+          <div class="tool-panel">
+            <div class="tool-row" id="maskTools" role="group" aria-label="Maskenwerkzeug wählen">
+              <button type="button" data-tool="sample" class="is-active" aria-pressed="true">Pipette</button>
+              <button type="button" data-tool="brush-add" aria-pressed="false">Pinsel +</button>
+              <button type="button" data-tool="brush-subtract" aria-pressed="false">Pinsel −</button>
+              <button type="button" data-tool="polygon-add" aria-pressed="false">Polygon +</button>
+              <button type="button" data-tool="polygon-subtract" aria-pressed="false">Polygon −</button>
+              <button type="button" data-tool="pan" aria-pressed="false">Verschieben</button>
+            </div>
+            <div class="active-tool-status" id="activeToolStatus" role="status" aria-live="polite">
+              <strong>Aktives Werkzeug: Pipette</strong>
+              <span>Werkzeug ist gewählt. Lade zuerst ein Foto in Schritt 1.</span>
+            </div>
+            <div class="actions">
+              <button type="button" id="finishPolygon" disabled>Polygon abschliessen</button>
+              <button type="button" id="cancelPolygon" disabled>Polygon abbrechen</button>
+              <button type="button" id="undoMask" disabled>Rückgängig</button>
+              <button type="button" id="redoMask" disabled>Wiederholen</button>
+              <button type="button" id="resetMask" class="danger" disabled>Maske zurücksetzen</button>
+            </div>
+            <label class="field">Auswahlverhalten
+              <select id="selectionMode"><option value="connected">Nur zusammenhängende Fläche</option><option value="global">Alle ähnlichen Farbbereiche</option></select>
+            </label>
+            <label class="field">Farbähnlichkeit · <output id="colourToleranceLabel">normal</output>
+              <input type="range" id="colourTolerance" min="6" max="46" value="22">
+            </label>
+            <label class="field">Helligkeitsbereich · <output id="lightToleranceLabel">normal</output>
+              <input type="range" id="lightTolerance" min="6" max="55" value="25">
+            </label>
+            <label class="field">Kantenempfindlichkeit · <output id="edgeSensitivityLabel">normal</output>
+              <input type="range" id="edgeSensitivity" min="0" max="100" value="55">
+            </label>
+            <label class="field">Pinselgrösse · <output id="brushSizeLabel">40 px</output>
+              <input type="range" id="brushSize" min="4" max="220" value="40">
+            </label>
+            <label class="field">Kante innen ausfedern · <output id="featherLabel">3 px</output>
+              <input type="range" id="feather" min="0" max="20" value="3">
+            </label>
+            <div class="actions">
+              <button type="button" id="rebuildMask">Aus Proben neu berechnen</button>
+              <button type="button" id="growMask">Maske erweitern</button>
+              <button type="button" id="shrinkMask">Maske verkleinern</button>
+            </div>
+            <div class="samples" id="sampleList"><div class="notice">Noch keine Probe. Aktiviere die Pipette und klicke in die gewünschte Oberfläche.</div></div>
+            <div class="notice" id="maskNotice">Mindestens eine Probe ist erforderlich; drei Proben aus hell, mittel und dunkel verbessern die Auswahl.</div>
+          </div>
+        </section>
+
+        <section class="workflow-step" id="stepMode" data-workflow-step="mode">
+          <div class="step-heading"><div><h2>Visualisierungsmodus wählen</h2><p>Bestätigte Auffrischungslogik und hypothetische Umfärbung bleiben sichtbar getrennt.</p></div><span class="step-number">3</span></div>
+          <div class="choice-grid">
+            <label class="choice"><input type="radio" name="mode" value="refresh" checked><span><strong>Recoloro-Auffrischung</strong><small>Vorhandene Farbfamilie bleibt die Basis.</small></span></label>
+            <label class="choice"><input type="radio" name="mode" value="free"><span><strong>Freie Farbvariante</strong><small>Hypothetisch; nicht als Recoloro-Ergebnis bestätigt.</small></span></label>
+          </div>
+          <label class="field" id="intensityField" style="margin-top:12px">Auffrischungsintensität · <output id="intensityLabel">65 %</output>
+            <input type="range" id="intensity" min="0" max="100" value="65">
+          </label>
+          <div id="freeColourFields" hidden>
+            <div class="field-grid" style="margin-top:12px">
+              <label class="field span-2">HEX <input id="hexInput" type="text" value="#1F5AA6" maxlength="7" spellcheck="false"></label>
+              <label class="field">Rot <input id="redInput" type="number" min="0" max="255" value="31"></label>
+              <label class="field">Grün <input id="greenInput" type="number" min="0" max="255" value="90"></label>
+              <label class="field">Blau <input id="blueInput" type="number" min="0" max="255" value="166"></label>
+              <label class="field">Lab L* <input id="labLInput" type="number" min="0" max="100" step="0.1" value="38.4"></label>
+              <label class="field">Lab a* <input id="labAInput" type="number" min="-128" max="127" step="0.1" value="13.9"></label>
+              <label class="field">Lab b* <input id="labBInput" type="number" min="-128" max="127" step="0.1" value="-45.7"></label>
+            </div>
+            <div class="colour-preview"><span class="swatch" id="targetSwatch"></span><span><strong id="targetColourLabel">#1F5AA6</strong><small id="targetLabLabel">Lab 38.4 / 13.9 / −45.7</small></span></div>
+            <div class="notice" id="colourNotice">Hypothetische Farbvariante – nicht als erreichbares Recoloro-Ergebnis bestätigt.</div>
+          </div>
+        </section>
+
+        <section class="workflow-step" id="stepReferences" data-workflow-step="references">
+          <div class="step-heading"><div><h2>RAL/NCS-Projektbezug</h2><p>Eine Bezeichnung wird gespeichert, aber ohne autorisierte Farbdaten nie in einen Farbwert umgerechnet.</p></div><span class="step-number">4</span></div>
+          <label class="field">Optionale Projektbezeichnung <input id="referenceName" type="text" placeholder="z. B. gewünschte RAL-/NCS-Bezeichnung" maxlength="120"></label>
+          <div class="field-grid">
+            <label class="field">Farbquelle <input id="colourSource" type="text" value="Manuelle Eingabe" maxlength="120"></label>
+            <label class="field">Datenversion <input id="colourVersion" type="text" placeholder="optional" maxlength="80"></label>
+          </div>
+          <input id="paletteInput" type="file" accept="application/json,.json" hidden>
+          <div class="actions"><button type="button" id="importPalette">Lizenzierte Farbdaten importieren</button></div>
+          <label class="field" id="paletteField" hidden>Importierter Farbwert <select id="paletteSelect"></select></label>
+          <div class="notice">Der MVP enthält keine RAL-/NCS-Farbliste und keine offiziellen Logos. Vor einer vollständigen Integration ist der konkrete Lizenzumfang separat zu klären.</div>
+        </section>
+
+        <section class="workflow-step" id="stepTransfer" data-workflow-step="transfer">
+          <div class="step-heading"><div><h2>Fotorealistische Übertragung</h2><p>Lab-Farbe, lokale Helligkeit, Hochfrequenzdetail und bestehende Reflexe werden getrennt behandelt.</p></div><span class="step-number">5</span></div>
+          <div class="meta">
+            <div><span>Algorithmus</span><strong>recoloro-local-lab-v1</strong></div>
+            <div><span>Arbeitsfarbraum</span><strong>CIELAB D65</strong></div>
+            <div><span>Ausserhalb Maske</span><strong>unverändert</strong></div>
+            <div><span>Verarbeitung</span><strong>Web Worker / Canvas</strong></div>
+          </div>
+          <div class="progress"><span id="processingProgress"></span></div>
+          <div class="result-summary" id="processingStatus">Nach dem Laden eines Fotos und dem Erstellen einer Maske erscheint die Vorschau hier.</div>
+        </section>
+
+        <section class="workflow-step" id="stepGloss" data-workflow-step="gloss">
+          <div class="step-heading"><div><h2>Glanzgrad simulieren</h2><p>Vorhandene Highlights bleiben Ausgangspunkt; es werden keine Spiegelobjekte erfunden.</p></div><span class="step-number">6</span></div>
+          <label class="field">Glanzgrad
+            <select id="glossLevel">
+              <option value="0">Matt</option><option value="1">Seidenmatt</option><option value="2" selected>Seidenglänzend</option><option value="3">Glänzend</option><option value="4">Hochglänzend</option>
+            </select>
+          </label>
+          <label class="field">Glanzwirkung · <output id="glossEffectLabel">70 %</output>
+            <input type="range" id="glossEffect" min="0" max="100" value="70">
+          </label>
+          <div class="notice">Annäherung aus einem einzelnen Foto. Glanzstufen sind keine physikalisch bestimmten Materialwerte.</div>
+        </section>
+
+        <section class="workflow-step" id="stepCompare" data-workflow-step="compare">
+          <div class="step-heading"><div><h2>Vergleich und Kontrolle</h2><p>Original, Ergebnis und Maske prüfen; bei 100 % bleiben Struktur und Kanten besonders gut beurteilbar.</p></div><span class="step-number">7</span></div>
+          <div class="view-row" id="viewButtons">
+            <button type="button" data-view="compare" class="is-active">Vorher/Nachher</button>
+            <button type="button" data-view="original">Original</button>
+            <button type="button" data-view="result">Ergebnis</button>
+            <button type="button" data-view="mask">Maske</button>
+            <button type="button" data-view="overlay">Überlagerung</button>
+          </div>
+          <label class="field" style="margin-top:12px">Vergleichsposition · <output id="compareLabel">50 %</output><input id="compareSlider" type="range" min="0" max="100" value="50"></label>
+          <p class="result-summary">Schnellkontrolle: <kbd>Leertaste</kbd> hält vorübergehend das Original sichtbar. Mausrad oder Zoomtasten vergrössern; das Hand-Werkzeug verschiebt.</p>
+          <div class="meta">
+            <div><span>Modus</span><strong id="summaryMode">Recoloro-Auffrischung</strong></div>
+            <div><span>Zielton</span><strong id="summaryColour">vorhandene Farbfamilie</strong></div>
+            <div><span>Glanzgrad</span><strong id="summaryGloss">Seidenglänzend</strong></div>
+            <div><span>Ausgewählte Fläche</span><strong id="summaryMask">0 %</strong></div>
+          </div>
+        </section>
+
+        <section class="workflow-step" id="stepExport" data-workflow-step="export">
+          <div class="step-heading"><div><h2>Projekt speichern und exportieren</h2><p>Projektdatei enthält Originalreferenz, Originalbild, Maske und alle Parameter; das Original selbst wird nie überschrieben.</p></div><span class="step-number">8</span></div>
+          <label class="field">Dateiname <input id="exportName" type="text" value="objekt-farbvorschau" maxlength="100"></label>
+          <label class="field">Exportgrösse
+            <select id="exportSize"><option value="original">Originaldimensionen</option><option value="web">Web-Vorschau · längste Kante 2400 px</option></select>
+          </label>
+          <div class="choice-grid">
+            <label class="choice"><input type="checkbox" id="exportPng" checked><span><strong>PNG</strong><small>verlustfrei, grössere Datei</small></span></label>
+            <label class="choice"><input type="checkbox" id="exportWebp" checked><span><strong>WebP</strong><small>Qualität 92 %, weboptimiert</small></span></label>
+          </div>
+          <label class="choice" style="margin-top:8px"><input type="checkbox" id="includeNotice" checked><span><strong>Hinweis sichtbar einblenden</strong><small>„Unverbindliche Visualisierung“ im unteren Bildbereich.</small></span></label>
+          <div class="actions" style="margin-top:12px">
+            <button type="button" id="saveProject">Projekt speichern</button>
+            <button type="button" id="exportResult" class="primary">PNG / WebP exportieren</button>
+          </div>
+          <div class="progress"><span id="exportProgress"></span></div>
+          <div class="result-summary" id="exportStatus">Export ist möglich, sobald Foto und Maske technisch gültig sind.</div>
+          <div class="disclaimer" style="margin-top:12px">Unverbindliche Visualisierung. Das reale Ergebnis hängt unter anderem von Ausgangsbeschichtung, Zustand, Beleuchtung, Aufnahme, Bildschirmdarstellung und fachgerechter Ausführung ab.</div>
+        </section>
+      </div>
+
+      <aside class="workspace" aria-label="Bildarbeitsfläche">
+        <div class="workspace-toolbar">
+          <div class="view-row">
+            <button type="button" id="fitView">Ansicht einpassen</button>
+            <button type="button" id="actualPixels">100 %</button>
+            <button type="button" id="zoomOut" aria-label="Verkleinern">−</button>
+            <button type="button" id="zoomIn" aria-label="Vergrössern">+</button>
+          </div>
+          <div class="badge" id="viewBadge">Kein Foto</div>
+        </div>
+        <div class="canvas-shell" id="canvasShell">
+          <canvas id="editorCanvas" aria-label="Farbvorschau und Maskenbearbeitung"></canvas>
+          <div class="canvas-empty" id="canvasEmpty"><div><strong>Noch kein Foto geladen</strong>Beginne in Schritt 1 oder öffne ein gespeichertes Projekt.</div></div>
+        </div>
+        <div class="canvas-status">
+          <span id="canvasStatus">Bereit für ein lokales Foto.</span>
+          <span class="legend"><span>Auswahlmaske</span><span id="zoomLabel">Zoom –</span></span>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="farbvorschau-engine.js"></script>
+  <script src="farbvorschau-editor.js"></script>
+</body>
+</html>
