@@ -473,6 +473,13 @@ document.addEventListener('click', (e) => {
   }
 });
 
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && navMenu.classList.contains('is-open')) {
+    closeNavigationMenu();
+    navHamburger.focus();
+  }
+});
+
 navMenu.querySelectorAll('a[href^="#"]').forEach(link => {
   link.addEventListener('click', closeNavigationMenu);
 });
