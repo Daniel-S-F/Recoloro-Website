@@ -7,7 +7,8 @@
 # Öffentlich ausgeliefert werden ausschliesslich:
 #   .htaccess, index.html, impressum.html, datenschutz.html, submit.php,
 #   styles.css, script.js, hotspot-data.js, image-config.js,
-#   robots.txt, sitemap.xml,
+#   robots.txt, sitemap.xml, favicon.ico, apple-touch-icon.png,
+#   assets/images/og-image.jpg,
 #   assets/images/anwendungsgrafik-efh-gh-1.png,
 #   assets/images/logo-primary.svg, assets/images/recoloro-wordmark.svg,
 #   assets/images/bildpaare/*-hero-*.webp
