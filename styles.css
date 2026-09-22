@@ -568,6 +568,13 @@ body {
   letter-spacing: -.025em;
 }
 
+.section-heading .section-tagline {
+  margin-bottom: 14px;
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  font-style: italic;
+  font-weight: 400;
+}
+
 .section-heading > p:last-child,
 .offer-copy > p:last-child {
   color: var(--text-muted);
