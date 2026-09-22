@@ -9,7 +9,7 @@
 #   styles.css, script.js, hotspot-data.js, image-config.js,
 #   robots.txt, sitemap.xml, favicon.ico, apple-touch-icon.png,
 #   assets/images/og-image.jpg,
-#   assets/images/anwendungsgrafik-efh-gh-1.png,
+#   assets/images/anwendungsgrafik-efh-gh-1.webp,
 #   assets/images/logo-primary.svg, assets/images/recoloro-wordmark.svg,
 #   assets/images/bildpaare/*-hero-*.webp
 #
@@ -43,6 +43,7 @@ __pycache__/
 # Roh- und Quellbilder (4–9 MB je Datei, nicht anonymisierte Pilotquellen)
 assets/images/bildpaare/*.jpg
 assets/images/logo-icon-r.jpg
+assets/images/anwendungsgrafik-efh-gh-1.png
 
 # Nicht referenzierte Logovarianten
 assets/images/logo-secondary.svg
