@@ -1,0 +1,48 @@
+# RECOLORO – Ausschlussliste für das Produktiv-Deployment (N1 S-7)
+#
+# Alles, was hier steht, wird NICHT auf den Webserver übertragen.
+# Format: ein Muster je Zeile, kompatibel mit `rsync --exclude-from=deploy-exclude.txt`.
+# Bei manuellem Upload (SFTP/FTP) die Liste als Prüfliste verwenden.
+#
+# Öffentlich ausgeliefert werden ausschliesslich:
+#   .htaccess, index.html, impressum.html, datenschutz.html, submit.php,
+#   styles.css, script.js, hotspot-data.js, image-config.js,
+#   robots.txt, sitemap.xml,
+#   assets/images/anwendungsgrafik-efh-gh-1.png,
+#   assets/images/logo-primary.svg, assets/images/recoloro-wordmark.svg,
+#   assets/images/bildpaare/*-hero-*.webp
+#
+# Die .htaccess sperrt die Editoren zusätzlich (Require local); das ersetzt
+# diese Liste nicht.
+
+# Versionsverwaltung und diese Liste selbst
+.git/
+.gitignore
+deploy-exclude.txt
+
+# Arbeits- und Übergabedateien
+CLAUDE.md
+Feinschliff_Sammelliste.md
+Recoloro_Etappe2_Briefing.md
+
+# Interne Editoren und ihre Konfiguration
+bildausschnitt-editor.html
+bildausschnitt-editor.js
+farbvorschau-*
+image-editor-config.js
+image-frames.js
+
+# Lokale Server, Skripte und Laufzeitreste
+*.py
+*.ps1
+__pycache__/
+*.log
+.recoloro-preview-*
+
+# Roh- und Quellbilder (4–9 MB je Datei, nicht anonymisierte Pilotquellen)
+assets/images/bildpaare/*.jpg
+assets/images/logo-icon-r.jpg
+
+# Nicht referenzierte Logovarianten
+assets/images/logo-secondary.svg
+assets/images/logo/
