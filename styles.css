@@ -367,6 +367,8 @@ body {
 
 .hero-claim {
   color: white;
+  font-size: inherit;
+  font-weight: inherit;
   margin-bottom: 10px;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
@@ -888,7 +890,7 @@ body {
   text-transform: uppercase;
 }
 
-.applications-intro h1 {
+.applications-intro h2 {
   max-width: 980px;
   font-size: clamp(1.85rem, 2.8vw, 2.9rem);
   font-weight: 300;
@@ -1036,7 +1038,7 @@ body {
 
 @media (max-width: 640px) {
   .applications-intro { margin-bottom: 22px; }
-  .applications-intro h1 { font-size: clamp(1.85rem, 9vw, 2.65rem); }
+  .applications-intro h2 { font-size: clamp(1.85rem, 9vw, 2.65rem); }
   .application-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hotspot-button { width: 21px; height: 21px; }
   .application-index { padding: 20px; }
@@ -1044,7 +1046,7 @@ body {
 }
 
 @media (min-width: 901px) {
-  .applications-intro h1 { white-space: nowrap; }
+  .applications-intro h2 { white-space: nowrap; }
 }
 
 @media (max-width: 480px) {
