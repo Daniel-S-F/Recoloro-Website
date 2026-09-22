@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+date_default_timezone_set('Europe/Zurich');
 
 $wantsJson = str_contains(strtolower($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json');
 
@@ -23,6 +24,12 @@ function respond(int $status, string $message, bool $wantsJson): never
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Allow: POST');
     respond(405, 'Diese Adresse akzeptiert ausschliesslich Offertanfragen aus dem Formular.', $wantsJson);
+}
+
+// Überschreitet die Anfrage post_max_size, verwirft PHP alle Felder; ohne diese Prüfung
+// erschiene irreführend die Meldung zu Name und E-Mail.
+if (!$_POST && !$_FILES && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+    respond(413, 'Die Anfrage ist zu gross. Die Bilder dürfen zusammen maximal 10 MB gross sein.', $wantsJson);
 }
 
 if (!empty($_POST['company_website'] ?? '')) {
@@ -117,7 +124,7 @@ $body = implode("\n", [
 
 $from = trim((string) getenv('RECOLORO_FROM_EMAIL'));
 if (!filter_var($from, FILTER_VALIDATE_EMAIL)) $from = 'no-reply@recoloro.ch';
-$subjectText = 'RECOLORO Offertanfrage ' . $plz . ' – ' . $name;
+$subjectText = 'RECOLORO Offertanfrage ' . $plz . ' – ' . $safeLine($name);
 $subject = function_exists('mb_encode_mimeheader') ? mb_encode_mimeheader($subjectText, 'UTF-8') : $subjectText;
 $headers = [
     'From: RECOLORO Website <' . $from . '>',
@@ -141,5 +148,53 @@ if ($attachments) {
 
 $sent = mail($recipient, $subject, $mailBody, implode("\r\n", $headers));
 if (!$sent) respond(503, 'Die Anfrage konnte technisch nicht zugestellt werden. Bitte versuchen Sie es später erneut.', $wantsJson);
+
+// Empfangsbestätigung an die anfragende Person (N1 S-3). Standardmässig aus; einschalten mit
+// RECOLORO_CONFIRMATION_ENABLED=1, sobald das Postfach hinter RECOLORO_LEAD_EMAIL besteht.
+// Absender ist dieses Postfach, damit Antworten dort ankommen. Bewusst ohne Freitext aus dem
+// Formular, damit das Formular nicht zum Versand fremder Inhalte missbraucht werden kann.
+if (trim((string) getenv('RECOLORO_CONFIRMATION_ENABLED')) === '1') {
+    $componentLabels = [
+        'Tueren und Tore' => 'Türen & Tore',
+        'Fenster und Storen' => 'Fenster & Storen',
+        'Fassaden und Bruestungen' => 'Fassaden & Brüstungen',
+        'Wintergaerten und Metallprofile' => 'Wintergärten & Metallprofile',
+        'Andere beschichtete Metallbauteile' => 'Andere beschichtete Metallbauteile',
+    ];
+    $confirmationBody = implode("\n", [
+        'Guten Tag',
+        '',
+        'Vielen Dank für Ihre Anfrage. Wir haben sie erhalten und melden uns innert zwei Arbeitstagen bei Ihnen.',
+        '',
+        'Wir prüfen zunächst anhand Ihrer Angaben, ob sich das Bauteil für RECOLORO eignet. Passt die Anfrage, leiten wir sie an eine ausführende Fachfirma weiter, die das Objekt beurteilt und die Offerte erstellt.',
+        '',
+        'Ihre Anfrage:',
+        'Objekt-PLZ: ' . $plz,
+        'Bauteile: ' . implode(', ', array_map(static fn(string $component): string => $componentLabels[$component], $components)),
+        'Fotos: ' . ($attachments ? count($attachments) : 'keine'),
+        '',
+        'Möchten Sie etwas ergänzen, antworten Sie einfach auf diese E-Mail.',
+        '',
+        'Freundliche Grüsse',
+        'RECOLORO',
+        '',
+        '4co GmbH · In den Schorenmatten 15 · 4058 Basel',
+        'Diese Bestätigung wurde automatisch versendet.',
+    ]);
+    $confirmationSubjectText = 'Ihre Anfrage bei RECOLORO ist eingegangen';
+    $confirmationSubject = function_exists('mb_encode_mimeheader') ? mb_encode_mimeheader($confirmationSubjectText, 'UTF-8') : $confirmationSubjectText;
+    $confirmationHeaders = [
+        'From: RECOLORO <' . $recipient . '>',
+        'Reply-To: ' . $recipient,
+        'Auto-Submitted: auto-replied',
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+    ];
+    // Die Anfrage ist bereits zugestellt; ein Fehler hier darf die Rückmeldung nicht verfälschen.
+    if (!mail($email, $confirmationSubject, $confirmationBody, implode("\r\n", $confirmationHeaders))) {
+        error_log('RECOLORO: Empfangsbestätigung an die anfragende Person konnte nicht versendet werden.');
+    }
+}
 
 respond(200, 'Vielen Dank. Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns nach der Prüfung.', $wantsJson);
